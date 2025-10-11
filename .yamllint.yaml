@@ -1,0 +1,31 @@
+---
+# Relaxed yamllint config for GitHub Actions workflows
+rules:
+  # Allow longer lines for GitHub Actions
+  line-length:
+    max: 150
+  
+  # Don't require document start for GitHub Actions
+  document-start: disable
+  
+  # Allow truthy values for GitHub Actions syntax
+  truthy: disable
+  
+  # Allow unquoted strings for readability
+  quoted-strings: disable
+  
+  # Keep essential rules
+  braces: enable
+  brackets: enable
+  colons: enable
+  commas: enable
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: enable
+  empty-lines: enable
+  empty-values: enable
+  hyphens: enable
+  indentation: enable
+  key-duplicates: enable
+  octal-values: disable
+  trailing-spaces: enable
