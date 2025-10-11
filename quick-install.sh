@@ -7,6 +7,7 @@ set -euo pipefail
 
 WORKFLOW_FILE="droid-code-review.yaml"
 WORKFLOW_PATH=".github/workflows/droid-code-review.yaml"
+DROID_INSTALLER_SHA256=""  # Will be fetched dynamically
 
 # Colors
 GREEN='\033[0;32m'
@@ -17,6 +18,36 @@ NC='\033[0m'
 
 print() {
     echo -e "${1}${2}${NC}"
+}
+
+# Fetch current Droid CLI installer SHA256
+fetch_droid_sha256() {
+    print $BLUE "🔍 Fetching current Droid CLI installer SHA256..."
+    
+    local temp_installer=$(mktemp)
+    
+    if ! curl -fsSL --compressed https://app.factory.ai/cli -o "$temp_installer"; then
+        print $RED "❌ Failed to download Droid CLI installer"
+        rm -f "$temp_installer"
+        return 1
+    fi
+    
+    if ! command -v sha256sum &> /dev/null; then
+        print $RED "❌ sha256sum command not found"
+        rm -f "$temp_installer"
+        return 1
+    fi
+    
+    DROID_INSTALLER_SHA256=$(sha256sum "$temp_installer" | awk '{print $1}')
+    rm -f "$temp_installer"
+    
+    if [[ -z "$DROID_INSTALLER_SHA256" ]]; then
+        print $RED "❌ Failed to calculate SHA256"
+        return 1
+    fi
+    
+    print $GREEN "✅ Current SHA256: $DROID_INSTALLER_SHA256"
+    return 0
 }
 
 # Check prerequisites
@@ -43,6 +74,18 @@ check() {
 get_repos() {
     print $BLUE "📂 Getting repositories..." >&2
     gh repo list --limit 1000 --json nameWithOwner | jq -r '.[].nameWithOwner'
+}
+
+# Set repository variable for Droid installer SHA256
+set_repo_variable() {
+    local repo=$1
+    
+    # Set the DROID_INSTALLER_SHA256 variable
+    gh variable set DROID_INSTALLER_SHA256 \
+        --repo "$repo" \
+        --body "$DROID_INSTALLER_SHA256" 2>&1 > /dev/null
+    
+    return $?
 }
 
 # Install to single repo via API
@@ -77,6 +120,8 @@ install_to_repo() {
     fi
     
     if [[ $? -eq 0 ]]; then
+        # Also set the repository variable
+        set_repo_variable "$repo"
         return 0  # Success - installed/updated
     else
         # Check specific error types
@@ -96,6 +141,13 @@ main() {
     print $BLUE "==========================================="
     
     check
+    
+    # Fetch current Droid SHA256
+    if ! fetch_droid_sha256; then
+        print $RED "❌ Cannot proceed without valid Droid installer SHA256"
+        exit 1
+    fi
+    echo
     
     local repos=()
     while IFS= read -r repo; do
@@ -194,8 +246,13 @@ main() {
     
     # Next steps reminder
     echo
-    print $BLUE "🔔 REMINDER: Don't forget to add FACTORY_API_KEY secret to each repository!"
+    print $BLUE "🔔 REMINDER: Don't forget to add required secrets to each repository!"
     print $BLUE "   Repository Settings → Secrets and variables → Actions → New repository secret"
+    print $BLUE "   Required secrets:"
+    print $BLUE "   - FACTORY_API_KEY: Your Factory.ai API key"
+    print $BLUE "   - MODEL_API_KEY: Your Z.ai API key (for GLM-4.6 model)"
+    echo
+    print $GREEN "✅ DROID_INSTALLER_SHA256 variable has been set automatically on all repositories"
 }
 
 main "$@"

@@ -10,6 +10,7 @@ WORKFLOW_FILE="droid-code-review.yaml"
 WORKFLOW_DIR=".github/workflows"
 BACKUP_DIR=".github/workflows/backup"
 LOG_FILE="workflow-installation.log"
+DROID_INSTALLER_SHA256=""  # Will be fetched dynamically
 
 # Colors for output
 RED='\033[0;31m'
@@ -28,6 +29,41 @@ print_status() {
     local color=$1
     local message=$2
     echo -e "${color}${message}${NC}" >&2
+}
+
+# Fetch current Droid CLI installer SHA256
+fetch_droid_sha256() {
+    log "Fetching current Droid CLI installer SHA256..."
+    print_status $BLUE "🔍 Fetching current Droid CLI installer SHA256..."
+    
+    local temp_installer=$(mktemp)
+    
+    if ! curl -fsSL --compressed https://app.factory.ai/cli -o "$temp_installer"; then
+        print_status $RED "❌ Failed to download Droid CLI installer"
+        log "Failed to download Droid CLI installer"
+        rm -f "$temp_installer"
+        return 1
+    fi
+    
+    if ! command -v sha256sum &> /dev/null; then
+        print_status $RED "❌ sha256sum command not found"
+        log "sha256sum command not found"
+        rm -f "$temp_installer"
+        return 1
+    fi
+    
+    DROID_INSTALLER_SHA256=$(sha256sum "$temp_installer" | awk '{print $1}')
+    rm -f "$temp_installer"
+    
+    if [[ -z "$DROID_INSTALLER_SHA256" ]]; then
+        print_status $RED "❌ Failed to calculate SHA256"
+        log "Failed to calculate SHA256"
+        return 1
+    fi
+    
+    print_status $GREEN "✅ Current SHA256: $DROID_INSTALLER_SHA256"
+    log "Current SHA256: $DROID_INSTALLER_SHA256"
+    return 0
 }
 
 # Check prerequisites
@@ -162,6 +198,14 @@ install_workflow_in_repo() {
     log "Pushed workflow update directly to ${default_branch} for $repo"
     
     cd - > /dev/null
+    
+    # Set the repository variable
+    if gh variable set DROID_INSTALLER_SHA256 --repo "$repo" --body "$DROID_INSTALLER_SHA256" 2>&1 > /dev/null; then
+        log "Set DROID_INSTALLER_SHA256 variable for $repo"
+    else
+        log "Warning: Failed to set DROID_INSTALLER_SHA256 variable for $repo"
+    fi
+    
     print_status $GREEN "✅ Completed $repo"
     log "Completed processing $repo"
 }
@@ -342,6 +386,14 @@ main() {
     
     check_prerequisites
     
+    # Fetch current Droid SHA256
+    if ! fetch_droid_sha256; then
+        print_status $RED "❌ Cannot proceed without valid Droid installer SHA256"
+        log "Failed to fetch Droid installer SHA256"
+        exit 1
+    fi
+    echo
+    
     if [[ "$dry_run" == "true" ]]; then
         print_status $BLUE "🔍 DRY RUN MODE - No changes will be made"
         local repos=()
@@ -378,6 +430,14 @@ main() {
     fi
     
     print_status $GREEN "🎊 Installation process completed!"
+    echo
+    print_status $BLUE "🔔 REMINDER: Don't forget to add required secrets to each repository!"
+    print_status $BLUE "   Repository Settings → Secrets and variables → Actions → New repository secret"
+    print_status $BLUE "   Required secrets:"
+    print_status $BLUE "   - FACTORY_API_KEY: Your Factory.ai API key"
+    print_status $BLUE "   - MODEL_API_KEY: Your Z.ai API key (for GLM-4.6 model)"
+    echo
+    print_status $GREEN "✅ DROID_INSTALLER_SHA256 variable has been set automatically on all repositories"
     log "=== Droid Workflow Installation Completed ==="
 }
 

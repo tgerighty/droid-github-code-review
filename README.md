@@ -70,7 +70,14 @@ After installation, you need to add two secrets to each repository:
 3. Name: `MODEL_API_KEY`
 4. Value: Your Z.ai API key (for GLM-4.6 model)
 
-**Note**: The workflow uses the GLM-4.6 model via Z.ai's API endpoint for code reviews.
+### 3. Repository Variables (Set Automatically)
+
+The installation scripts automatically set the following repository variable:
+- `DROID_INSTALLER_SHA256`: SHA256 checksum of the Droid CLI installer (for security verification)
+
+**Note**: 
+- The workflow uses the GLM-4.6 model via Z.ai's API endpoint for code reviews.
+- The installation scripts automatically fetch the latest Droid CLI installer SHA256 when they run, ensuring you always use the current version.
 
 ## Managing Installations
 
