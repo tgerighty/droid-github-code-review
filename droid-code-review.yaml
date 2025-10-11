@@ -88,11 +88,11 @@ jobs:
           echo "❌ API keys are missing. Posted comment on PR. Exiting gracefully."
           exit 0
 
-      # OPTIMIZATION #3: Shallow checkout instead of full history
+      # OPTIMIZATION #3: Shallow checkout with enough depth for merge base
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
       # OPTIMIZATION #4: Validate prerequisites (API keys already checked)
@@ -173,8 +173,8 @@ jobs:
         id: changes
         run: |
           set -euo pipefail
-          # Fetch only the base branch with shallow depth
-          git fetch --depth=1 origin ${{ github.event.pull_request.base.ref }}
+          # Fetch base branch (full history already available from checkout)
+          git fetch origin ${{ github.event.pull_request.base.ref }}
 
           # Check if there are actual code changes
           DIFF_SIZE=$(git diff origin/${{ github.event.pull_request.base.ref }}...${{ github.event.pull_request.head.sha }} | wc -l)
