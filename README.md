@@ -11,7 +11,21 @@ Automated code review workflow that uses AI to analyze pull requests and provide
 
 ## Quick Start
 
-### 1. Install to All Repositories (Recommended)
+### 1. Setup API Keys (One-Time Setup)
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env and add your API keys
+# - FACTORY_API_KEY: Get from https://app.factory.ai/settings
+# - MODEL_API_KEY: Get from https://api.z.ai/
+nano .env  # or use your favorite editor
+```
+
+**Important**: The `.env` file is gitignored and will never be committed to your repository.
+
+### 2. Install to All Repositories (Recommended)
 
 ```bash
 # Make sure you have GitHub CLI installed and authenticated
@@ -23,9 +37,11 @@ gh auth login
 ```
 
 That's it! The script will:
+- Load API keys from your `.env` file
 - Get all your repositories
 - Install the workflow to each one
-- Skip repos that already have it
+- **Automatically create the required secrets in each repository**
+- Set the DROID_INSTALLER_SHA256 variable
 - Show you the results
 
 ### 2. Install to Specific Repositories
@@ -46,38 +62,55 @@ That's it! The script will:
 
 ## What This Workflow Does
 
-- **Triggers**: Runs on pull request events (opened, synchronized, reopened, ready_for_review)
-- **Skips**: Draft pull requests and PRs with 100+ changed files
+- **Triggers**: 
+  - Automatic: Runs on pull request events (opened, synchronized, reopened, ready_for_review)
+  - Manual: Can be triggered manually for any PR (see [Manual Trigger Guide](MANUAL_TRIGGER.md))
+- **Skips**: Draft pull requests (only in automatic mode)
 - **Fail-Fast**: Checks API keys first - exits in ~10 seconds with helpful PR comment if missing (saves Actions minutes!)
 - **Analyzes**: Code changes using GLM-4.6 model via Z.ai
 - **Reports**: Inline comments with actionable feedback
 - **Timeout**: 15 minutes with concurrency control
 
-## Required Setup
+### Manual Trigger
 
-After installation, you need to add two secrets to each repository:
+You can manually trigger a code review for any PR:
+- Works on PRs of any size (no file limit)
+- Can re-run reviews without pushing new commits
+- Works on draft PRs
 
-### 1. Factory API Key
-1. Go to repository settings
-2. Click "Secrets and variables" > "Actions"
-3. Click "New repository secret"
-4. Name: `FACTORY_API_KEY`
-5. Value: Your Factory API key
+See [MANUAL_TRIGGER.md](MANUAL_TRIGGER.md) for detailed instructions.
 
-### 2. Custom Model API Key
-1. In the same "Secrets and variables" > "Actions" section
-2. Click "New repository secret"
-3. Name: `MODEL_API_KEY`
-4. Value: Your Z.ai API key (for GLM-4.6 model)
+## How It Works
 
-### 3. Repository Variables (Set Automatically)
+The installation scripts automatically configure everything for you:
 
-The installation scripts automatically set the following repository variable:
-- `DROID_INSTALLER_SHA256`: SHA256 checksum of the Droid CLI installer (for security verification)
+### ✅ Automatically Created
 
-**Note**: 
-- The workflow uses the GLM-4.6 model via Z.ai's API endpoint for code reviews.
-- The installation scripts automatically fetch the latest Droid CLI installer SHA256 when they run, ensuring you always use the current version.
+When you run any installation script with a `.env` file configured:
+
+1. **Workflow File**: Installs `.github/workflows/droid-code-review.yaml` in each repository
+2. **Repository Secrets** (automatically created):
+   - `FACTORY_API_KEY`: Your Factory.ai API key (from `.env`)
+   - `MODEL_API_KEY`: Your Z.ai API key (from `.env`)
+3. **Repository Variable** (automatically set):
+   - `DROID_INSTALLER_SHA256`: SHA256 checksum of the Droid CLI installer
+
+### 🔐 Security
+
+- Your API keys are stored in `.env` which is **gitignored** and never committed
+- Secrets are securely transmitted to GitHub using the GitHub CLI
+- Each repository gets its own copy of the secrets
+- The workflow uses the GLM-4.6 model via Z.ai's API endpoint
+
+### 📝 Manual Setup (If Needed)
+
+If you didn't create a `.env` file or want to add secrets manually:
+
+1. Go to repository **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Add both secrets:
+   - Name: `FACTORY_API_KEY`, Value: Your Factory API key
+   - Name: `MODEL_API_KEY`, Value: Your Z.ai API key
 
 ## Managing Installations
 
