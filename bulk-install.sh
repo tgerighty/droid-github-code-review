@@ -10,6 +10,10 @@ WORKFLOW_FILE="droid-code-review.yaml"
 WORKFLOW_PATH=".github/workflows/droid-code-review.yaml"
 DROID_INSTALLER_SHA256=""  # Will be fetched dynamically
 
+# API Keys (loaded from .env)
+FACTORY_API_KEY=""
+MODEL_API_KEY=""
+
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -19,6 +23,28 @@ NC='\033[0m'
 
 print() {
     echo -e "${1}${2}${NC}"
+}
+
+# Load API keys from .env file
+load_env() {
+    if [[ -f .env ]]; then
+        print $GREEN "✅ Loading API keys from .env file..."
+        # Export variables from .env
+        export $(grep -v '^#' .env | grep -v '^$' | xargs)
+        
+        # Verify keys are loaded
+        if [[ -n "${FACTORY_API_KEY:-}" && -n "${MODEL_API_KEY:-}" ]]; then
+            print $GREEN "✅ API keys loaded successfully"
+            return 0
+        else
+            print $YELLOW "⚠️  API keys not found in .env file"
+            return 1
+        fi
+    else
+        print $YELLOW "⚠️  .env file not found. API secrets will not be created."
+        print $BLUE "   To create secrets automatically, copy .env.example to .env and add your keys."
+        return 1
+    fi
 }
 
 # Fetch current Droid CLI installer SHA256
@@ -89,6 +115,24 @@ set_repo_variable() {
     return $?
 }
 
+# Create repository secrets for API keys
+create_repo_secrets() {
+    local repo=$1
+    
+    # Only create secrets if API keys are available
+    if [[ -n "${FACTORY_API_KEY:-}" ]]; then
+        gh secret set FACTORY_API_KEY \
+            --repo "$repo" \
+            --body "$FACTORY_API_KEY" 2>&1 > /dev/null
+    fi
+    
+    if [[ -n "${MODEL_API_KEY:-}" ]]; then
+        gh secret set MODEL_API_KEY \
+            --repo "$repo" \
+            --body "$MODEL_API_KEY" 2>&1 > /dev/null
+    fi
+}
+
 # Install to single repo
 install_to_repo() {
     local repo=$1
@@ -117,8 +161,9 @@ install_to_repo() {
             git commit -m "Add Droid automated code review workflow"
             git push
             
-            # Set the repository variable after successful push
+            # Set the repository variable and secrets after successful push
             set_repo_variable "$repo"
+            create_repo_secrets "$repo"
             
             print $GREEN "  ✅ Installed"
         fi
@@ -137,6 +182,13 @@ main() {
     print $BLUE "========================================"
     
     check
+    
+    # Load API keys from .env
+    local has_api_keys=false
+    if load_env; then
+        has_api_keys=true
+    fi
+    echo
     
     # Fetch current Droid SHA256
     if ! fetch_droid_sha256; then
@@ -172,13 +224,24 @@ main() {
         print $RED "❌ Failed: $failed"
     fi
     echo
-    print $BLUE "🔔 REMINDER: Don't forget to add required secrets to each repository!"
-    print $BLUE "   Repository Settings → Secrets and variables → Actions → New repository secret"
-    print $BLUE "   Required secrets:"
-    print $BLUE "   - FACTORY_API_KEY: Your Factory.ai API key"
-    print $BLUE "   - MODEL_API_KEY: Your Z.ai API key (for GLM-4.6 model)"
-    echo
     print $GREEN "✅ DROID_INSTALLER_SHA256 variable has been set automatically on all repositories"
+    
+    if [[ "$has_api_keys" == "true" ]]; then
+        print $GREEN "✅ FACTORY_API_KEY and MODEL_API_KEY secrets have been created in all repositories"
+    else
+        echo
+        print $BLUE "🔔 REMINDER: API secrets were not created automatically."
+        print $BLUE "   To create secrets automatically next time:"
+        print $BLUE "   1. Copy .env.example to .env"
+        print $BLUE "   2. Add your API keys to the .env file"
+        print $BLUE "   3. Run this script again"
+        echo
+        print $BLUE "   Or add them manually to each repository:"
+        print $BLUE "   Repository Settings → Secrets and variables → Actions → New repository secret"
+        print $BLUE "   Required secrets:"
+        print $BLUE "   - FACTORY_API_KEY: Your Factory.ai API key"
+        print $BLUE "   - MODEL_API_KEY: Your Z.ai API key (for GLM-4.6 model)"
+    fi
 }
 
 main "$@"

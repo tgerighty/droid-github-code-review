@@ -12,6 +12,10 @@ BACKUP_DIR=".github/workflows/backup"
 LOG_FILE="workflow-installation.log"
 DROID_INSTALLER_SHA256=""  # Will be fetched dynamically
 
+# API Keys (loaded from .env)
+FACTORY_API_KEY=""
+MODEL_API_KEY=""
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -29,6 +33,32 @@ print_status() {
     local color=$1
     local message=$2
     echo -e "${color}${message}${NC}" >&2
+}
+
+# Load API keys from .env file
+load_env() {
+    if [[ -f .env ]]; then
+        print_status $GREEN "✅ Loading API keys from .env file..."
+        log "Loading API keys from .env file"
+        # Export variables from .env
+        export $(grep -v '^#' .env | grep -v '^$' | xargs)
+        
+        # Verify keys are loaded
+        if [[ -n "${FACTORY_API_KEY:-}" && -n "${MODEL_API_KEY:-}" ]]; then
+            print_status $GREEN "✅ API keys loaded successfully"
+            log "API keys loaded successfully"
+            return 0
+        else
+            print_status $YELLOW "⚠️  API keys not found in .env file"
+            log "API keys not found in .env file"
+            return 1
+        fi
+    else
+        print_status $YELLOW "⚠️  .env file not found. API secrets will not be created."
+        print_status $BLUE "   To create secrets automatically, copy .env.example to .env and add your keys."
+        log ".env file not found"
+        return 1
+    fi
 }
 
 # Fetch current Droid CLI installer SHA256
@@ -204,6 +234,23 @@ install_workflow_in_repo() {
         log "Set DROID_INSTALLER_SHA256 variable for $repo"
     else
         log "Warning: Failed to set DROID_INSTALLER_SHA256 variable for $repo"
+    fi
+    
+    # Create repository secrets if API keys are available
+    if [[ -n "${FACTORY_API_KEY:-}" ]]; then
+        if gh secret set FACTORY_API_KEY --repo "$repo" --body "$FACTORY_API_KEY" 2>&1 > /dev/null; then
+            log "Set FACTORY_API_KEY secret for $repo"
+        else
+            log "Warning: Failed to set FACTORY_API_KEY secret for $repo"
+        fi
+    fi
+    
+    if [[ -n "${MODEL_API_KEY:-}" ]]; then
+        if gh secret set MODEL_API_KEY --repo "$repo" --body "$MODEL_API_KEY" 2>&1 > /dev/null; then
+            log "Set MODEL_API_KEY secret for $repo"
+        else
+            log "Warning: Failed to set MODEL_API_KEY secret for $repo"
+        fi
     fi
     
     print_status $GREEN "✅ Completed $repo"
@@ -386,6 +433,13 @@ main() {
     
     check_prerequisites
     
+    # Load API keys from .env
+    local has_api_keys=false
+    if load_env; then
+        has_api_keys=true
+    fi
+    echo
+    
     # Fetch current Droid SHA256
     if ! fetch_droid_sha256; then
         print_status $RED "❌ Cannot proceed without valid Droid installer SHA256"
@@ -431,13 +485,24 @@ main() {
     
     print_status $GREEN "🎊 Installation process completed!"
     echo
-    print_status $BLUE "🔔 REMINDER: Don't forget to add required secrets to each repository!"
-    print_status $BLUE "   Repository Settings → Secrets and variables → Actions → New repository secret"
-    print_status $BLUE "   Required secrets:"
-    print_status $BLUE "   - FACTORY_API_KEY: Your Factory.ai API key"
-    print_status $BLUE "   - MODEL_API_KEY: Your Z.ai API key (for GLM-4.6 model)"
-    echo
     print_status $GREEN "✅ DROID_INSTALLER_SHA256 variable has been set automatically on all repositories"
+    
+    if [[ "$has_api_keys" == "true" ]]; then
+        print_status $GREEN "✅ FACTORY_API_KEY and MODEL_API_KEY secrets have been created in all repositories"
+    else
+        echo
+        print_status $BLUE "🔔 REMINDER: API secrets were not created automatically."
+        print_status $BLUE "   To create secrets automatically next time:"
+        print_status $BLUE "   1. Copy .env.example to .env"
+        print_status $BLUE "   2. Add your API keys to the .env file"
+        print_status $BLUE "   3. Run this script again"
+        echo
+        print_status $BLUE "   Or add them manually to each repository:"
+        print_status $BLUE "   Repository Settings → Secrets and variables → Actions → New repository secret"
+        print_status $BLUE "   Required secrets:"
+        print_status $BLUE "   - FACTORY_API_KEY: Your Factory.ai API key"
+        print_status $BLUE "   - MODEL_API_KEY: Your Z.ai API key (for GLM-4.6 model)"
+    fi
     log "=== Droid Workflow Installation Completed ==="
 }
 

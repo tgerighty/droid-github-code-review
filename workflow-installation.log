@@ -545,3 +545,107 @@
 2025-10-11 10:31:38 - Processing repository: tgerighty/command-converter
 2025-10-11 10:31:45 - Installation completed - Success: 45, Failed: 1, Total: 46
 2025-10-11 10:31:45 - === Droid Workflow Installation Completed ===
+2025-10-11 11:45:11 - === Droid Workflow Installation Started ===
+2025-10-11 11:45:11 - Force mode: true
+2025-10-11 11:45:11 - Interactive mode: false
+2025-10-11 11:45:11 - Specific repos: 
+2025-10-11 11:45:11 - Dry run: false
+2025-10-11 11:45:11 - Checking prerequisites...
+2025-10-11 11:45:11 - Prerequisites check passed
+2025-10-11 11:45:11 - Fetching repositories...
+2025-10-11 11:45:12 - Found 47 repositories
+2025-10-11 11:45:12 - Starting workflow installation across 47 repositories
+2025-10-11 11:45:12 - Processing repository: tgerighty/droid-github-code-review
+2025-10-11 11:45:15 - Processing repository: tgerighty/mailintelligence
+2025-10-11 11:45:18 - Completed processing tgerighty/mailintelligence
+2025-10-11 11:45:19 - Processing repository: tgerighty/telemetary-framework
+2025-10-11 11:45:23 - Completed processing tgerighty/telemetary-framework
+2025-10-11 11:45:24 - Processing repository: tgerighty/claude-switcher
+2025-10-11 11:45:28 - Completed processing tgerighty/claude-switcher
+2025-10-11 11:45:29 - Processing repository: tgerighty/email_sentimentv1
+2025-10-11 11:45:32 - Completed processing tgerighty/email_sentimentv1
+2025-10-11 11:45:33 - Processing repository: tgerighty/SendSafe
+2025-10-11 11:45:36 - Completed processing tgerighty/SendSafe
+2025-10-11 11:45:37 - Processing repository: tgerighty/aws-savings-dashboard-v2
+2025-10-11 11:45:41 - Completed processing tgerighty/aws-savings-dashboard-v2
+2025-10-11 11:45:42 - Processing repository: tgerighty/azure-b-series-use-checker
+2025-10-11 11:45:45 - Completed processing tgerighty/azure-b-series-use-checker
+2025-10-11 11:45:46 - Processing repository: tgerighty/email_optimizer
+2025-10-11 11:45:50 - Completed processing tgerighty/email_optimizer
+2025-10-11 11:45:51 - Processing repository: tgerighty/Agent-n8n
+2025-10-11 11:45:54 - Completed processing tgerighty/Agent-n8n
+2025-10-11 11:45:55 - Processing repository: tgerighty/claude-platform-benchmark
+2025-10-11 11:45:58 - Completed processing tgerighty/claude-platform-benchmark
+2025-10-11 11:45:59 - Processing repository: tgerighty/cc-gcusage
+2025-10-11 11:46:03 - Completed processing tgerighty/cc-gcusage
+2025-10-11 11:46:04 - Processing repository: tgerighty/pa-import
+2025-10-11 11:46:09 - Completed processing tgerighty/pa-import
+2025-10-11 11:46:10 - Processing repository: tgerighty/pa-import-flow
+2025-10-11 11:46:13 - Completed processing tgerighty/pa-import-flow
+2025-10-11 11:46:14 - Processing repository: tgerighty/pa-email-categorizer
+2025-10-11 11:46:18 - Completed processing tgerighty/pa-email-categorizer
+2025-10-11 11:46:19 - Processing repository: tgerighty/aws-sso-shareable-module
+2025-10-11 11:46:23 - Completed processing tgerighty/aws-sso-shareable-module
+2025-10-11 11:46:24 - Processing repository: tgerighty/n8n-fyxer-tidy
+2025-10-11 11:46:27 - Completed processing tgerighty/n8n-fyxer-tidy
+2025-10-11 11:46:28 - Processing repository: tgerighty/claude-prune
+2025-10-11 11:46:32 - Completed processing tgerighty/claude-prune
+2025-10-11 11:46:33 - Processing repository: tgerighty/claude-gemini-mcp-migrator
+2025-10-11 11:46:37 - Completed processing tgerighty/claude-gemini-mcp-migrator
+2025-10-11 11:46:38 - Processing repository: tgerighty/n8n-bland-call-log-analyser
+2025-10-11 11:46:41 - Completed processing tgerighty/n8n-bland-call-log-analyser
+2025-10-11 11:46:42 - Processing repository: tgerighty/n8n-bland-call-logs
+2025-10-11 11:46:46 - Completed processing tgerighty/n8n-bland-call-logs
+2025-10-11 11:46:47 - Processing repository: tgerighty/n8n-bland-reports-analyser
+2025-10-11 11:46:50 - Completed processing tgerighty/n8n-bland-reports-analyser
+2025-10-11 11:46:51 - Processing repository: tgerighty/osx-suspend-onedrive
+2025-10-11 11:46:55 - Completed processing tgerighty/osx-suspend-onedrive
+2025-10-11 11:46:56 - Processing repository: tgerighty/Delfin-CQR
+2025-10-11 11:46:59 - Completed processing tgerighty/Delfin-CQR
+2025-10-11 11:47:00 - Processing repository: tgerighty/emailsentiment
+2025-10-11 11:47:03 - Completed processing tgerighty/emailsentiment
+2025-10-11 11:47:04 - Processing repository: tgerighty/outlook-sentiment-addin
+2025-10-11 11:47:09 - Completed processing tgerighty/outlook-sentiment-addin
+2025-10-11 11:47:11 - Processing repository: tgerighty/cc-hook-coderabbit
+2025-10-11 11:47:14 - Completed processing tgerighty/cc-hook-coderabbit
+2025-10-11 11:47:15 - Processing repository: tgerighty/syno-docker-update
+2025-10-11 11:47:19 - Completed processing tgerighty/syno-docker-update
+2025-10-11 11:47:20 - Processing repository: tgerighty/aws-inventory
+2025-10-11 11:47:23 - Completed processing tgerighty/aws-inventory
+2025-10-11 11:47:24 - Processing repository: tgerighty/fyxer-outlook-addin
+2025-10-11 11:47:28 - Completed processing tgerighty/fyxer-outlook-addin
+2025-10-11 11:47:29 - Processing repository: tgerighty/email-checkr
+2025-10-11 11:47:32 - Completed processing tgerighty/email-checkr
+2025-10-11 11:47:33 - Processing repository: tgerighty/emailchecker
+2025-10-11 11:47:39 - Completed processing tgerighty/emailchecker
+2025-10-11 11:47:40 - Processing repository: tgerighty/nxio.ai-website
+2025-10-11 11:47:44 - Completed processing tgerighty/nxio.ai-website
+2025-10-11 11:47:45 - Processing repository: tgerighty/aws-savings-dashboard
+2025-10-11 11:47:53 - Completed processing tgerighty/aws-savings-dashboard
+2025-10-11 11:47:54 - Processing repository: tgerighty/nxio-ai-nextjs
+2025-10-11 11:48:00 - Completed processing tgerighty/nxio-ai-nextjs
+2025-10-11 11:48:01 - Processing repository: tgerighty/emailgrammer
+2025-10-11 11:48:05 - Completed processing tgerighty/emailgrammer
+2025-10-11 11:48:06 - Processing repository: tgerighty/doodletoslide
+2025-10-11 11:48:15 - Completed processing tgerighty/doodletoslide
+2025-10-11 11:48:16 - Processing repository: tgerighty/MI-website
+2025-10-11 11:48:22 - Completed processing tgerighty/MI-website
+2025-10-11 11:48:23 - Processing repository: tgerighty/CLIProxyAPI-fork
+2025-10-11 11:48:27 - Completed processing tgerighty/CLIProxyAPI-fork
+2025-10-11 11:48:28 - Processing repository: tgerighty/nxio-dev-website
+2025-10-11 11:48:33 - Completed processing tgerighty/nxio-dev-website
+2025-10-11 11:48:34 - Processing repository: tgerighty/Droid-Forge
+2025-10-11 11:48:36 - Completed processing tgerighty/Droid-Forge
+2025-10-11 11:48:37 - Processing repository: tgerighty/nxioai-nginx-proxy
+2025-10-11 11:48:41 - Completed processing tgerighty/nxioai-nginx-proxy
+2025-10-11 11:48:42 - Processing repository: tgerighty/linux-security-monitor
+2025-10-11 11:48:45 - Completed processing tgerighty/linux-security-monitor
+2025-10-11 11:48:47 - Processing repository: tgerighty/ccr-config
+2025-10-11 11:48:50 - Completed processing tgerighty/ccr-config
+2025-10-11 11:48:51 - Processing repository: tgerighty/bland-mcp
+2025-10-11 11:48:55 - Completed processing tgerighty/bland-mcp
+2025-10-11 11:48:56 - Processing repository: tgerighty/supabase-backup
+2025-10-11 11:49:00 - Completed processing tgerighty/supabase-backup
+2025-10-11 11:49:01 - Processing repository: tgerighty/command-converter
+2025-10-11 11:49:05 - Installation completed - Success: 46, Failed: 1, Total: 47
+2025-10-11 11:49:05 - === Droid Workflow Installation Completed ===
