@@ -4,10 +4,20 @@ Automated code review workflow that uses AI to analyze pull requests and provide
 
 ## Files
 
-- `droid-code-review.yaml` - GitHub Actions workflow file
+### Installation Scripts
 - `quick-install.sh` - ⭐ **Simple installation script**
 - `install-workflow.sh` - Advanced installation with options
+- `bulk-install.sh` - Alternative bulk installation script
+
+### Management Scripts
 - `manage-workflows.sh` - Manage existing installations
+
+### Uninstallation Scripts
+- `bulk-uninstall.sh` - ⭐ **Simple uninstallation script**
+- `uninstall-workflow.sh` - Advanced uninstallation with options
+
+### Workflow File
+- `droid-code-review.yaml` - GitHub Actions workflow file
 
 ## Quick Start
 
@@ -137,6 +147,61 @@ If you didn't create a `.env` file or want to add secrets manually:
 ```bash
 ./manage-workflows.sh remove owner/repo1,owner/repo2
 ```
+
+## Uninstalling the Workflow
+
+If you want to remove the workflow from your repositories, we provide dedicated uninstallation scripts that will:
+- Remove the workflow file from repositories
+- Delete the `DROID_INSTALLER_SHA256` variable
+- Delete the `FACTORY_API_KEY` secret
+- Delete the `MODEL_API_KEY` secret
+
+### Quick Uninstall (All Repositories)
+
+```bash
+./bulk-uninstall.sh
+```
+
+This will remove the workflow and clean up all secrets/variables from **all** your repositories. It will ask for confirmation before proceeding.
+
+### Advanced Uninstall Options
+
+```bash
+# Uninstall from all repositories (with confirmation)
+./uninstall-workflow.sh
+
+# Uninstall but keep a backup in each repo
+./uninstall-workflow.sh --backup
+
+# Interactively select repositories to uninstall from
+./uninstall-workflow.sh --interactive
+
+# Uninstall from specific repositories
+./uninstall-workflow.sh --repos "owner/repo1,owner/repo2"
+
+# Preview what would be removed (dry run)
+./uninstall-workflow.sh --dry-run
+```
+
+### What Gets Removed
+
+During uninstallation, the following items are removed from each repository:
+
+1. **Workflow File**: `.github/workflows/droid-code-review.yaml`
+2. **Repository Variable**: `DROID_INSTALLER_SHA256`
+3. **Repository Secrets**:
+   - `FACTORY_API_KEY`
+   - `MODEL_API_KEY`
+
+### Uninstall with Backup
+
+Use the `--backup` flag to keep a backup copy of the workflow file in `.github/workflows/backup/droid-code-review.yaml`:
+
+```bash
+./uninstall-workflow.sh --backup
+```
+
+This is useful if you want to preserve the workflow configuration for future reference or reinstallation.
 
 ## Script Options
 

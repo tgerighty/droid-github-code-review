@@ -155,6 +155,47 @@ update_installed_workflows() {
     ./install-workflow.sh --force --repos "$(IFS=','; echo "${installed[*]}")"
 }
 
+# Remove repository variable
+remove_repo_variable() {
+    local repo=$1
+    
+    if gh variable delete DROID_INSTALLER_SHA256 --repo "$repo" 2>&1 > /dev/null; then
+        print_status $GREEN "  ✓ Removed DROID_INSTALLER_SHA256 variable"
+        return 0
+    else
+        print_status $YELLOW "  ⚠️  Variable DROID_INSTALLER_SHA256 not found or already removed"
+        return 1
+    fi
+}
+
+# Remove repository secrets
+remove_repo_secrets() {
+    local repo=$1
+    local secrets_removed=0
+    
+    # Remove FACTORY_API_KEY secret
+    if gh secret delete FACTORY_API_KEY --repo "$repo" 2>&1 > /dev/null; then
+        print_status $GREEN "  ✓ Removed FACTORY_API_KEY secret"
+        ((secrets_removed++))
+    else
+        print_status $YELLOW "  ⚠️  Secret FACTORY_API_KEY not found or already removed"
+    fi
+    
+    # Remove MODEL_API_KEY secret
+    if gh secret delete MODEL_API_KEY --repo "$repo" 2>&1 > /dev/null; then
+        print_status $GREEN "  ✓ Removed MODEL_API_KEY secret"
+        ((secrets_removed++))
+    else
+        print_status $YELLOW "  ⚠️  Secret MODEL_API_KEY not found or already removed"
+    fi
+    
+    if [[ $secrets_removed -gt 0 ]]; then
+        print_status $GREEN "  ✓ Removed $secrets_removed secret(s)"
+    fi
+    
+    return 0
+}
+
 # Remove workflow from repositories
 remove_workflow() {
     local repos=("$@")
@@ -183,7 +224,7 @@ remove_workflow() {
             if [[ -f "$workflow_path" ]]; then
                 mkdir -p "$(dirname "$backup_path")"
                 cp "$workflow_path" "$backup_path"
-                print_status $YELLOW "  ⚠️  Backed up to $backup_path"
+                print_status $YELLOW "  📦 Backed up to $backup_path"
                 
                 git config user.name "Droid Workflow Manager"
                 git config user.email "workflow-manager@factory.ai"
@@ -205,14 +246,25 @@ remove_workflow() {
 
                 if git push origin "HEAD:${default_branch}"; then
                     print_status $GREEN "  ✅ Removed workflow and pushed to ${default_branch}"
+                    
+                    # Clean up secrets and variables after successful push
+                    cd - > /dev/null
+                    print_status $BLUE "  🧹 Cleaning up secrets and variables..."
+                    remove_repo_variable "$repo"
+                    remove_repo_secrets "$repo"
                 else
                     print_status $RED "  ❌ Failed to push removal to ${default_branch}"
+                    cd - > /dev/null
                 fi
             else
                 print_status $YELLOW "  ⚠️  Workflow not found in $repo"
+                cd - > /dev/null
+                
+                # Still try to clean up secrets and variables
+                print_status $BLUE "  🧹 Cleaning up secrets and variables..."
+                remove_repo_variable "$repo"
+                remove_repo_secrets "$repo"
             fi
-            
-            cd - > /dev/null
         else
             print_status $RED "  ❌ Failed to clone $repo"
         fi

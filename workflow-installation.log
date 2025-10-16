@@ -649,3 +649,256 @@
 2025-10-11 11:49:01 - Processing repository: tgerighty/command-converter
 2025-10-11 11:49:05 - Installation completed - Success: 46, Failed: 1, Total: 47
 2025-10-11 11:49:05 - === Droid Workflow Installation Completed ===
+2025-10-16 16:16:34 - === Droid Workflow Installation Started ===
+2025-10-16 16:16:34 - Force mode: true
+2025-10-16 16:16:34 - Interactive mode: false
+2025-10-16 16:16:34 - Specific repos: 
+2025-10-16 16:16:34 - Dry run: false
+2025-10-16 16:16:34 - Checking prerequisites...
+2025-10-16 16:16:36 - Prerequisites check passed
+2025-10-16 16:16:36 - Loading API keys from .env file
+2025-10-16 16:16:36 - API keys loaded successfully
+2025-10-16 16:16:36 - Fetching current Droid CLI installer SHA256...
+2025-10-16 16:16:37 - Current SHA256: e31357edcacd7434670621617a0d327ada7491f2d4ca40e3cac3829c388fad9a
+2025-10-16 16:16:37 - Fetching repositories...
+2025-10-16 16:16:40 - Found 49 repositories
+2025-10-16 16:16:40 - Starting workflow installation across 49 repositories
+2025-10-16 16:16:40 - Processing repository: tgerighty/CLIProxyAPI-fork
+2025-10-16 16:16:58 - Set DROID_INSTALLER_SHA256 variable for tgerighty/CLIProxyAPI-fork
+2025-10-16 16:17:00 - Set FACTORY_API_KEY secret for tgerighty/CLIProxyAPI-fork
+2025-10-16 16:17:03 - Set MODEL_API_KEY secret for tgerighty/CLIProxyAPI-fork
+2025-10-16 16:17:03 - Completed processing tgerighty/CLIProxyAPI-fork
+2025-10-16 16:17:04 - Processing repository: tgerighty/nxio-dev-website
+2025-10-16 16:17:43 - Set DROID_INSTALLER_SHA256 variable for tgerighty/nxio-dev-website
+2025-10-16 16:17:46 - Set FACTORY_API_KEY secret for tgerighty/nxio-dev-website
+2025-10-16 16:17:48 - Set MODEL_API_KEY secret for tgerighty/nxio-dev-website
+2025-10-16 16:17:48 - Completed processing tgerighty/nxio-dev-website
+2025-10-16 16:17:49 - Processing repository: tgerighty/nxioai-nginx-proxy
+2025-10-16 16:18:06 - Set DROID_INSTALLER_SHA256 variable for tgerighty/nxioai-nginx-proxy
+2025-10-16 16:18:09 - Set FACTORY_API_KEY secret for tgerighty/nxioai-nginx-proxy
+2025-10-16 16:18:11 - Set MODEL_API_KEY secret for tgerighty/nxioai-nginx-proxy
+2025-10-16 16:18:11 - Completed processing tgerighty/nxioai-nginx-proxy
+2025-10-16 16:18:12 - Processing repository: tgerighty/ccr-config
+2025-10-16 16:18:30 - Set DROID_INSTALLER_SHA256 variable for tgerighty/ccr-config
+2025-10-16 16:18:33 - Set FACTORY_API_KEY secret for tgerighty/ccr-config
+2025-10-16 16:18:35 - Set MODEL_API_KEY secret for tgerighty/ccr-config
+2025-10-16 16:18:35 - Completed processing tgerighty/ccr-config
+2025-10-16 16:18:36 - Processing repository: tgerighty/bland-mcp
+2025-10-16 16:18:58 - Set DROID_INSTALLER_SHA256 variable for tgerighty/bland-mcp
+2025-10-16 16:19:00 - Set FACTORY_API_KEY secret for tgerighty/bland-mcp
+2025-10-16 16:19:03 - Set MODEL_API_KEY secret for tgerighty/bland-mcp
+2025-10-16 16:19:03 - Completed processing tgerighty/bland-mcp
+2025-10-16 16:19:04 - Processing repository: tgerighty/supabase-backup
+2025-10-16 16:19:14 - Processing repository: tgerighty/droid-github-code-review
+2025-10-16 16:19:29 - Set DROID_INSTALLER_SHA256 variable for tgerighty/droid-github-code-review
+2025-10-16 16:19:31 - Set FACTORY_API_KEY secret for tgerighty/droid-github-code-review
+2025-10-16 16:19:33 - Set MODEL_API_KEY secret for tgerighty/droid-github-code-review
+2025-10-16 16:19:33 - Completed processing tgerighty/droid-github-code-review
+2025-10-16 16:19:34 - Processing repository: tgerighty/linux-security-monitor
+2025-10-16 16:19:52 - Set DROID_INSTALLER_SHA256 variable for tgerighty/linux-security-monitor
+2025-10-16 16:19:55 - Set FACTORY_API_KEY secret for tgerighty/linux-security-monitor
+2025-10-16 16:19:57 - Set MODEL_API_KEY secret for tgerighty/linux-security-monitor
+2025-10-16 16:19:57 - Completed processing tgerighty/linux-security-monitor
+2025-10-16 16:19:58 - Processing repository: tgerighty/telemetry-framework
+2025-10-16 16:20:07 - === Droid Workflow Installation Started ===
+2025-10-16 16:20:07 - Force mode: false
+2025-10-16 16:20:07 - Interactive mode: false
+2025-10-16 16:20:07 - Specific repos: tgerighty/syno-docker-update,tgerighty/linux-security-monitor,tgerighty/fyxer-outlook-addin,tgerighty/aws-inventory,tgerighty/email-checkr,tgerighty/emailchecker,tgerighty/nxio.ai-website,tgerighty/aws-savings-dashboard
+2025-10-16 16:20:07 - Dry run: false
+2025-10-16 16:20:07 - Checking prerequisites...
+2025-10-16 16:20:09 - Prerequisites check passed
+2025-10-16 16:20:09 - Loading API keys from .env file
+2025-10-16 16:20:09 - API keys loaded successfully
+2025-10-16 16:20:09 - Fetching current Droid CLI installer SHA256...
+2025-10-16 16:20:10 - Current SHA256: e31357edcacd7434670621617a0d327ada7491f2d4ca40e3cac3829c388fad9a
+2025-10-16 16:20:10 - Processing repository: tgerighty/syno-docker-update
+2025-10-16 16:20:17 - Set DROID_INSTALLER_SHA256 variable for tgerighty/telemetry-framework
+2025-10-16 16:20:20 - Set FACTORY_API_KEY secret for tgerighty/telemetry-framework
+2025-10-16 16:20:21 - Processing repository: tgerighty/linux-security-monitor
+2025-10-16 16:20:23 - Set MODEL_API_KEY secret for tgerighty/telemetry-framework
+2025-10-16 16:20:23 - Completed processing tgerighty/telemetry-framework
+2025-10-16 16:20:24 - Processing repository: tgerighty/doodletoslide
+2025-10-16 16:20:32 - Processing repository: tgerighty/fyxer-outlook-addin
+2025-10-16 16:20:44 - Processing repository: tgerighty/aws-inventory
+2025-10-16 16:21:04 - Processing repository: tgerighty/email-checkr
+2025-10-16 16:21:15 - Processing repository: tgerighty/emailchecker
+2025-10-16 16:21:26 - Processing repository: tgerighty/nxio.ai-website
+2025-10-16 16:21:39 - Processing repository: tgerighty/aws-savings-dashboard
+2025-10-16 16:21:40 - Processing repository: tgerighty/project-builder
+2025-10-16 16:21:50 - Processing repository: tgerighty/Droid-Forge
+2025-10-16 16:21:59 - Processing repository: tgerighty/mailintelligence
+2025-10-16 16:22:14 - Processing repository: tgerighty/Unified-Agents-Guide
+2025-10-16 16:22:23 - Processing repository: tgerighty/MI-website
+2025-10-16 16:22:26 - === Droid Workflow Installation Completed ===
+2025-10-16 16:23:45 - Set DROID_INSTALLER_SHA256 variable for tgerighty/MI-website
+2025-10-16 16:23:48 - Set FACTORY_API_KEY secret for tgerighty/MI-website
+2025-10-16 16:23:50 - Set MODEL_API_KEY secret for tgerighty/MI-website
+2025-10-16 16:23:50 - Completed processing tgerighty/MI-website
+2025-10-16 16:23:52 - Processing repository: tgerighty/emailgrammer
+2025-10-16 16:24:10 - Set DROID_INSTALLER_SHA256 variable for tgerighty/emailgrammer
+2025-10-16 16:24:13 - Set FACTORY_API_KEY secret for tgerighty/emailgrammer
+2025-10-16 16:24:16 - Set MODEL_API_KEY secret for tgerighty/emailgrammer
+2025-10-16 16:24:16 - Completed processing tgerighty/emailgrammer
+2025-10-16 16:24:17 - Processing repository: tgerighty/nxio-ai-nextjs
+2025-10-16 16:24:40 - Set DROID_INSTALLER_SHA256 variable for tgerighty/nxio-ai-nextjs
+2025-10-16 16:24:43 - Set FACTORY_API_KEY secret for tgerighty/nxio-ai-nextjs
+2025-10-16 16:24:45 - Set MODEL_API_KEY secret for tgerighty/nxio-ai-nextjs
+2025-10-16 16:24:45 - Completed processing tgerighty/nxio-ai-nextjs
+2025-10-16 16:24:46 - Processing repository: tgerighty/aws-savings-dashboard
+2025-10-16 16:28:34 - Set DROID_INSTALLER_SHA256 variable for tgerighty/aws-savings-dashboard
+2025-10-16 16:28:36 - Set FACTORY_API_KEY secret for tgerighty/aws-savings-dashboard
+2025-10-16 16:28:39 - Set MODEL_API_KEY secret for tgerighty/aws-savings-dashboard
+2025-10-16 16:28:39 - Completed processing tgerighty/aws-savings-dashboard
+2025-10-16 16:28:40 - Processing repository: tgerighty/nxio.ai-website
+2025-10-16 16:29:00 - Set DROID_INSTALLER_SHA256 variable for tgerighty/nxio.ai-website
+2025-10-16 16:29:02 - Set FACTORY_API_KEY secret for tgerighty/nxio.ai-website
+2025-10-16 16:29:05 - Set MODEL_API_KEY secret for tgerighty/nxio.ai-website
+2025-10-16 16:29:05 - Completed processing tgerighty/nxio.ai-website
+2025-10-16 16:29:06 - Processing repository: tgerighty/emailchecker
+2025-10-16 16:29:25 - Set DROID_INSTALLER_SHA256 variable for tgerighty/emailchecker
+2025-10-16 16:29:27 - Set FACTORY_API_KEY secret for tgerighty/emailchecker
+2025-10-16 16:29:29 - Set MODEL_API_KEY secret for tgerighty/emailchecker
+2025-10-16 16:29:29 - Completed processing tgerighty/emailchecker
+2025-10-16 16:29:30 - Processing repository: tgerighty/email-checkr
+2025-10-16 16:29:49 - Set DROID_INSTALLER_SHA256 variable for tgerighty/email-checkr
+2025-10-16 16:29:51 - Set FACTORY_API_KEY secret for tgerighty/email-checkr
+2025-10-16 16:29:53 - Set MODEL_API_KEY secret for tgerighty/email-checkr
+2025-10-16 16:29:53 - Completed processing tgerighty/email-checkr
+2025-10-16 16:29:54 - Processing repository: tgerighty/fyxer-outlook-addin
+2025-10-16 16:30:11 - Set DROID_INSTALLER_SHA256 variable for tgerighty/fyxer-outlook-addin
+2025-10-16 16:30:13 - Set FACTORY_API_KEY secret for tgerighty/fyxer-outlook-addin
+2025-10-16 16:30:16 - Set MODEL_API_KEY secret for tgerighty/fyxer-outlook-addin
+2025-10-16 16:30:16 - Completed processing tgerighty/fyxer-outlook-addin
+2025-10-16 16:30:17 - Processing repository: tgerighty/aws-inventory
+2025-10-16 16:30:35 - Set DROID_INSTALLER_SHA256 variable for tgerighty/aws-inventory
+2025-10-16 16:30:38 - Set FACTORY_API_KEY secret for tgerighty/aws-inventory
+2025-10-16 16:30:40 - Set MODEL_API_KEY secret for tgerighty/aws-inventory
+2025-10-16 16:30:40 - Completed processing tgerighty/aws-inventory
+2025-10-16 16:30:41 - Processing repository: tgerighty/syno-docker-update
+2025-10-16 16:30:59 - Set DROID_INSTALLER_SHA256 variable for tgerighty/syno-docker-update
+2025-10-16 16:31:01 - Set FACTORY_API_KEY secret for tgerighty/syno-docker-update
+2025-10-16 16:31:03 - Set MODEL_API_KEY secret for tgerighty/syno-docker-update
+2025-10-16 16:31:03 - Completed processing tgerighty/syno-docker-update
+2025-10-16 16:31:04 - Processing repository: tgerighty/cc-hook-coderabbit
+2025-10-16 16:31:23 - Set DROID_INSTALLER_SHA256 variable for tgerighty/cc-hook-coderabbit
+2025-10-16 16:31:26 - Set FACTORY_API_KEY secret for tgerighty/cc-hook-coderabbit
+2025-10-16 16:31:28 - Set MODEL_API_KEY secret for tgerighty/cc-hook-coderabbit
+2025-10-16 16:31:28 - Completed processing tgerighty/cc-hook-coderabbit
+2025-10-16 16:31:29 - Processing repository: tgerighty/outlook-sentiment-addin
+2025-10-16 16:31:53 - Set DROID_INSTALLER_SHA256 variable for tgerighty/outlook-sentiment-addin
+2025-10-16 16:31:56 - Set FACTORY_API_KEY secret for tgerighty/outlook-sentiment-addin
+2025-10-16 16:31:58 - Set MODEL_API_KEY secret for tgerighty/outlook-sentiment-addin
+2025-10-16 16:31:58 - Completed processing tgerighty/outlook-sentiment-addin
+2025-10-16 16:32:00 - Processing repository: tgerighty/emailsentiment
+2025-10-16 16:32:18 - Set DROID_INSTALLER_SHA256 variable for tgerighty/emailsentiment
+2025-10-16 16:32:21 - Set FACTORY_API_KEY secret for tgerighty/emailsentiment
+2025-10-16 16:32:23 - Set MODEL_API_KEY secret for tgerighty/emailsentiment
+2025-10-16 16:32:23 - Completed processing tgerighty/emailsentiment
+2025-10-16 16:32:24 - Processing repository: tgerighty/Delfin-CQR
+2025-10-16 16:32:44 - Set DROID_INSTALLER_SHA256 variable for tgerighty/Delfin-CQR
+2025-10-16 16:32:46 - Set FACTORY_API_KEY secret for tgerighty/Delfin-CQR
+2025-10-16 16:32:49 - Set MODEL_API_KEY secret for tgerighty/Delfin-CQR
+2025-10-16 16:32:49 - Completed processing tgerighty/Delfin-CQR
+2025-10-16 16:32:50 - Processing repository: tgerighty/osx-suspend-onedrive
+2025-10-16 16:33:08 - Set DROID_INSTALLER_SHA256 variable for tgerighty/osx-suspend-onedrive
+2025-10-16 16:33:11 - Set FACTORY_API_KEY secret for tgerighty/osx-suspend-onedrive
+2025-10-16 16:33:14 - Set MODEL_API_KEY secret for tgerighty/osx-suspend-onedrive
+2025-10-16 16:33:14 - Completed processing tgerighty/osx-suspend-onedrive
+2025-10-16 16:33:15 - Processing repository: tgerighty/n8n-bland-reports-analyser
+2025-10-16 16:33:33 - Set DROID_INSTALLER_SHA256 variable for tgerighty/n8n-bland-reports-analyser
+2025-10-16 16:33:36 - Set FACTORY_API_KEY secret for tgerighty/n8n-bland-reports-analyser
+2025-10-16 16:33:38 - Set MODEL_API_KEY secret for tgerighty/n8n-bland-reports-analyser
+2025-10-16 16:33:38 - Completed processing tgerighty/n8n-bland-reports-analyser
+2025-10-16 16:33:39 - Processing repository: tgerighty/n8n-bland-call-logs
+2025-10-16 16:33:59 - Set DROID_INSTALLER_SHA256 variable for tgerighty/n8n-bland-call-logs
+2025-10-16 16:34:01 - Set FACTORY_API_KEY secret for tgerighty/n8n-bland-call-logs
+2025-10-16 16:34:04 - Set MODEL_API_KEY secret for tgerighty/n8n-bland-call-logs
+2025-10-16 16:34:04 - Completed processing tgerighty/n8n-bland-call-logs
+2025-10-16 16:34:05 - Processing repository: tgerighty/n8n-bland-call-log-analyser
+2025-10-16 16:34:25 - Set DROID_INSTALLER_SHA256 variable for tgerighty/n8n-bland-call-log-analyser
+2025-10-16 16:34:27 - Set FACTORY_API_KEY secret for tgerighty/n8n-bland-call-log-analyser
+2025-10-16 16:34:30 - Set MODEL_API_KEY secret for tgerighty/n8n-bland-call-log-analyser
+2025-10-16 16:34:30 - Completed processing tgerighty/n8n-bland-call-log-analyser
+2025-10-16 16:34:31 - Processing repository: tgerighty/claude-gemini-mcp-migrator
+2025-10-16 16:34:49 - Set DROID_INSTALLER_SHA256 variable for tgerighty/claude-gemini-mcp-migrator
+2025-10-16 16:34:51 - Set FACTORY_API_KEY secret for tgerighty/claude-gemini-mcp-migrator
+2025-10-16 16:34:54 - Set MODEL_API_KEY secret for tgerighty/claude-gemini-mcp-migrator
+2025-10-16 16:34:54 - Completed processing tgerighty/claude-gemini-mcp-migrator
+2025-10-16 16:34:55 - Processing repository: tgerighty/claude-prune
+2025-10-16 16:35:16 - Set DROID_INSTALLER_SHA256 variable for tgerighty/claude-prune
+2025-10-16 16:35:19 - Set FACTORY_API_KEY secret for tgerighty/claude-prune
+2025-10-16 16:35:21 - Set MODEL_API_KEY secret for tgerighty/claude-prune
+2025-10-16 16:35:21 - Completed processing tgerighty/claude-prune
+2025-10-16 16:35:22 - Processing repository: tgerighty/n8n-fyxer-tidy
+2025-10-16 16:35:39 - Set DROID_INSTALLER_SHA256 variable for tgerighty/n8n-fyxer-tidy
+2025-10-16 16:35:42 - Set FACTORY_API_KEY secret for tgerighty/n8n-fyxer-tidy
+2025-10-16 16:35:45 - Set MODEL_API_KEY secret for tgerighty/n8n-fyxer-tidy
+2025-10-16 16:35:45 - Completed processing tgerighty/n8n-fyxer-tidy
+2025-10-16 16:35:46 - Processing repository: tgerighty/aws-sso-shareable-module
+2025-10-16 16:36:05 - Set DROID_INSTALLER_SHA256 variable for tgerighty/aws-sso-shareable-module
+2025-10-16 16:36:08 - Set FACTORY_API_KEY secret for tgerighty/aws-sso-shareable-module
+2025-10-16 16:36:10 - Set MODEL_API_KEY secret for tgerighty/aws-sso-shareable-module
+2025-10-16 16:36:10 - Completed processing tgerighty/aws-sso-shareable-module
+2025-10-16 16:36:11 - Processing repository: tgerighty/pa-email-categorizer
+2025-10-16 16:36:38 - Set DROID_INSTALLER_SHA256 variable for tgerighty/pa-email-categorizer
+2025-10-16 16:36:41 - Set FACTORY_API_KEY secret for tgerighty/pa-email-categorizer
+2025-10-16 16:36:44 - Set MODEL_API_KEY secret for tgerighty/pa-email-categorizer
+2025-10-16 16:36:44 - Completed processing tgerighty/pa-email-categorizer
+2025-10-16 16:36:45 - Processing repository: tgerighty/pa-import-flow
+2025-10-16 16:37:05 - Set DROID_INSTALLER_SHA256 variable for tgerighty/pa-import-flow
+2025-10-16 16:37:08 - Set FACTORY_API_KEY secret for tgerighty/pa-import-flow
+2025-10-16 16:37:11 - Set MODEL_API_KEY secret for tgerighty/pa-import-flow
+2025-10-16 16:37:11 - Completed processing tgerighty/pa-import-flow
+2025-10-16 16:37:12 - Processing repository: tgerighty/pa-import
+2025-10-16 16:37:35 - Set DROID_INSTALLER_SHA256 variable for tgerighty/pa-import
+2025-10-16 16:37:38 - Set FACTORY_API_KEY secret for tgerighty/pa-import
+2025-10-16 16:37:40 - Set MODEL_API_KEY secret for tgerighty/pa-import
+2025-10-16 16:37:40 - Completed processing tgerighty/pa-import
+2025-10-16 16:37:41 - Processing repository: tgerighty/cc-gcusage
+2025-10-16 16:38:05 - Set DROID_INSTALLER_SHA256 variable for tgerighty/cc-gcusage
+2025-10-16 16:38:08 - Set FACTORY_API_KEY secret for tgerighty/cc-gcusage
+2025-10-16 16:38:12 - Set MODEL_API_KEY secret for tgerighty/cc-gcusage
+2025-10-16 16:38:12 - Completed processing tgerighty/cc-gcusage
+2025-10-16 16:38:13 - Processing repository: tgerighty/claude-platform-benchmark
+2025-10-16 16:38:36 - Set DROID_INSTALLER_SHA256 variable for tgerighty/claude-platform-benchmark
+2025-10-16 16:38:39 - Set FACTORY_API_KEY secret for tgerighty/claude-platform-benchmark
+2025-10-16 16:38:42 - Set MODEL_API_KEY secret for tgerighty/claude-platform-benchmark
+2025-10-16 16:38:42 - Completed processing tgerighty/claude-platform-benchmark
+2025-10-16 16:38:43 - Processing repository: tgerighty/Agent-n8n
+2025-10-16 16:39:07 - Set DROID_INSTALLER_SHA256 variable for tgerighty/Agent-n8n
+2025-10-16 16:39:11 - Set FACTORY_API_KEY secret for tgerighty/Agent-n8n
+2025-10-16 16:39:14 - Set MODEL_API_KEY secret for tgerighty/Agent-n8n
+2025-10-16 16:39:14 - Completed processing tgerighty/Agent-n8n
+2025-10-16 16:39:15 - Processing repository: tgerighty/email_optimizer
+2025-10-16 16:39:41 - Set DROID_INSTALLER_SHA256 variable for tgerighty/email_optimizer
+2025-10-16 16:39:45 - Set FACTORY_API_KEY secret for tgerighty/email_optimizer
+2025-10-16 16:39:48 - Set MODEL_API_KEY secret for tgerighty/email_optimizer
+2025-10-16 16:39:48 - Completed processing tgerighty/email_optimizer
+2025-10-16 16:39:49 - Processing repository: tgerighty/azure-b-series-use-checker
+2025-10-16 16:40:16 - Set DROID_INSTALLER_SHA256 variable for tgerighty/azure-b-series-use-checker
+2025-10-16 16:40:20 - Set FACTORY_API_KEY secret for tgerighty/azure-b-series-use-checker
+2025-10-16 16:40:24 - Set MODEL_API_KEY secret for tgerighty/azure-b-series-use-checker
+2025-10-16 16:40:24 - Completed processing tgerighty/azure-b-series-use-checker
+2025-10-16 16:40:25 - Processing repository: tgerighty/aws-savings-dashboard-v2
+2025-10-16 16:40:48 - Set DROID_INSTALLER_SHA256 variable for tgerighty/aws-savings-dashboard-v2
+2025-10-16 16:40:51 - Set FACTORY_API_KEY secret for tgerighty/aws-savings-dashboard-v2
+2025-10-16 16:40:54 - Set MODEL_API_KEY secret for tgerighty/aws-savings-dashboard-v2
+2025-10-16 16:40:54 - Completed processing tgerighty/aws-savings-dashboard-v2
+2025-10-16 16:40:55 - Processing repository: tgerighty/SendSafe
+2025-10-16 16:41:16 - Set DROID_INSTALLER_SHA256 variable for tgerighty/SendSafe
+2025-10-16 16:41:19 - Set FACTORY_API_KEY secret for tgerighty/SendSafe
+2025-10-16 16:41:22 - Set MODEL_API_KEY secret for tgerighty/SendSafe
+2025-10-16 16:41:22 - Completed processing tgerighty/SendSafe
+2025-10-16 16:41:23 - Processing repository: tgerighty/email_sentimentv1
+2025-10-16 16:41:46 - Set DROID_INSTALLER_SHA256 variable for tgerighty/email_sentimentv1
+2025-10-16 16:41:49 - Set FACTORY_API_KEY secret for tgerighty/email_sentimentv1
+2025-10-16 16:41:54 - Set MODEL_API_KEY secret for tgerighty/email_sentimentv1
+2025-10-16 16:41:54 - Completed processing tgerighty/email_sentimentv1
+2025-10-16 16:41:55 - Processing repository: tgerighty/claude-switcher
+2025-10-16 16:42:16 - Set DROID_INSTALLER_SHA256 variable for tgerighty/claude-switcher
+2025-10-16 16:42:19 - Set FACTORY_API_KEY secret for tgerighty/claude-switcher
+2025-10-16 16:42:21 - Set MODEL_API_KEY secret for tgerighty/claude-switcher
+2025-10-16 16:42:21 - Completed processing tgerighty/claude-switcher
+2025-10-16 16:42:22 - Processing repository: tgerighty/command-converter
+2025-10-16 16:42:34 - Installation completed - Success: 49, Failed: 0, Total: 49
+2025-10-16 16:42:34 - === Droid Workflow Installation Completed ===
