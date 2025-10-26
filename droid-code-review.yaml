@@ -1,4 +1,4 @@
-name: Droid Code Review # Updated model syntax
+name: Droid Code Review - GLM46 Fixed
 
 'on':
   pull_request:
