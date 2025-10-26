@@ -1,0 +1,3 @@
+[
+  {"filename": "src/test.js", "patch": "@@ -10,3 +10,4 @@\n function test() {\n+  console.log('added line');\n   return true;\n }", "status": "modified"}
+]

@@ -1,0 +1,5 @@
+src/test.js:@@ -10,3 +10,4 @@
+ function test() {
++  console.log('added line');
+   return true;
+n }

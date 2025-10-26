@@ -902,3 +902,68 @@
 2025-10-16 16:42:22 - Processing repository: tgerighty/command-converter
 2025-10-16 16:42:34 - Installation completed - Success: 49, Failed: 0, Total: 49
 2025-10-16 16:42:34 - === Droid Workflow Installation Completed ===
+2025-10-17 14:24:21 - === Droid Workflow Installation Started ===
+2025-10-17 14:24:21 - Force mode: false
+2025-10-17 14:24:21 - Interactive mode: false
+2025-10-17 14:24:21 - Specific repos: 
+2025-10-17 14:24:21 - Dry run: false
+2025-10-17 14:24:21 - Checking prerequisites...
+2025-10-17 14:24:21 - Prerequisites check passed
+2025-10-17 14:24:21 - Loading API keys from .env file
+2025-10-17 14:24:21 - API keys loaded successfully
+2025-10-17 14:24:21 - Fetching current Droid CLI installer SHA256...
+2025-10-17 14:24:21 - Current SHA256: d0e0287a669fbdd48bacbe6a521d3ad8e2f514e36efba6d2982904b3856abe2b
+2025-10-17 14:24:21 - Fetching repositories...
+2025-10-17 14:24:22 - Found 49 repositories
+2025-10-17 14:24:22 - Starting workflow installation across 49 repositories
+2025-10-17 14:24:22 - Processing repository: tgerighty/nxioai-nginx-proxy
+2025-10-17 14:24:25 - Processing repository: tgerighty/Droid-Forge
+2025-10-17 14:24:27 - Processing repository: tgerighty/project-builder
+2025-10-17 14:24:31 - Processing repository: tgerighty/droid-github-code-review
+2025-10-17 14:24:33 - Processing repository: tgerighty/claude-switcher
+2025-10-17 14:24:35 - Processing repository: tgerighty/email_sentimentv1
+2025-10-17 14:24:39 - Processing repository: tgerighty/SendSafe
+2025-10-17 14:24:41 - Processing repository: tgerighty/aws-savings-dashboard-v2
+2025-10-17 14:24:44 - Processing repository: tgerighty/azure-b-series-use-checker
+2025-10-17 14:24:47 - Processing repository: tgerighty/email_optimizer
+2025-10-17 14:24:51 - Processing repository: tgerighty/Agent-n8n
+2025-10-17 14:24:54 - Processing repository: tgerighty/claude-platform-benchmark
+2025-10-17 14:24:56 - Processing repository: tgerighty/cc-gcusage
+2025-10-17 14:25:00 - Processing repository: tgerighty/pa-import
+2025-10-17 14:25:02 - Processing repository: tgerighty/pa-import-flow
+2025-10-17 14:25:06 - Processing repository: tgerighty/pa-email-categorizer
+2025-10-17 14:25:09 - Processing repository: tgerighty/aws-sso-shareable-module
+2025-10-17 14:25:11 - Processing repository: tgerighty/n8n-fyxer-tidy
+2025-10-17 14:25:14 - Processing repository: tgerighty/claude-prune
+2025-10-17 14:25:17 - Processing repository: tgerighty/claude-gemini-mcp-migrator
+2025-10-17 14:25:20 - Processing repository: tgerighty/n8n-bland-call-log-analyser
+2025-10-17 14:25:24 - Processing repository: tgerighty/n8n-bland-call-logs
+2025-10-17 14:25:27 - Processing repository: tgerighty/n8n-bland-reports-analyser
+2025-10-17 14:25:30 - Processing repository: tgerighty/osx-suspend-onedrive
+2025-10-17 14:25:33 - Processing repository: tgerighty/Delfin-CQR
+2025-10-17 14:25:36 - Processing repository: tgerighty/emailsentiment
+2025-10-17 14:25:38 - Processing repository: tgerighty/outlook-sentiment-addin
+2025-10-17 14:25:45 - Processing repository: tgerighty/cc-hook-coderabbit
+2025-10-17 14:25:48 - Processing repository: tgerighty/syno-docker-update
+2025-10-17 14:25:51 - Processing repository: tgerighty/aws-inventory
+2025-10-17 14:25:54 - Processing repository: tgerighty/fyxer-outlook-addin
+2025-10-17 14:25:56 - Processing repository: tgerighty/email-checkr
+2025-10-17 14:25:59 - Processing repository: tgerighty/emailchecker
+2025-10-17 14:26:02 - Processing repository: tgerighty/nxio.ai-website
+2025-10-17 14:26:05 - Processing repository: tgerighty/aws-savings-dashboard
+2025-10-17 14:26:39 - Processing repository: tgerighty/command-converter
+2025-10-17 14:26:42 - Processing repository: tgerighty/nxio-ai-nextjs
+2025-10-17 14:26:48 - Processing repository: tgerighty/emailgrammer
+2025-10-17 14:26:53 - Processing repository: tgerighty/MI-website
+2025-10-17 14:27:06 - Processing repository: tgerighty/telemetry-framework
+2025-10-17 14:27:10 - Processing repository: tgerighty/linux-security-monitor
+2025-10-17 14:27:13 - Processing repository: tgerighty/bland-mcp
+2025-10-17 14:27:16 - Processing repository: tgerighty/ccr-config
+2025-10-17 14:27:22 - Processing repository: tgerighty/nxio-dev-website
+2025-10-17 14:27:28 - Processing repository: tgerighty/CLIProxyAPI-fork
+2025-10-17 14:27:32 - Processing repository: tgerighty/supabase-backup
+2025-10-17 14:27:37 - Processing repository: tgerighty/doodletoslide
+2025-10-17 14:28:09 - Processing repository: tgerighty/mailintelligence
+2025-10-17 14:28:12 - Processing repository: tgerighty/Unified-Agents-Guide
+2025-10-17 14:28:15 - Installation completed - Success: 49, Failed: 0, Total: 49
+2025-10-17 14:28:15 - === Droid Workflow Installation Completed ===
