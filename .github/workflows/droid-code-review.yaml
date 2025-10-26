@@ -83,6 +83,8 @@ jobs:
           mv "$HOME/.factory/config.json.tmp" "$HOME/.factory/config.json"
 
       - name: Test droid exec
+        env:
+          FACTORY_API_KEY: ${{ secrets.FACTORY_API_KEY }}
         run: |
           echo "Testing droid exec with custom:GLM-4.6 model..."
           droid exec "hello world" --model custom:GLM-4.6 --skip-permissions-unsafe
