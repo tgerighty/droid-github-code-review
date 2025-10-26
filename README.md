@@ -262,3 +262,4 @@ The workflow installs with these settings:
 - **Permissions**: Minimal (pull-requests: write, contents: read, issues: write)
 - **Concurrency**: One run per PR, cancels in-progress runs
 - **Artifacts**: Debug logs uploaded on failure (7-day retention)
+# Test change for workflow
