@@ -1,4 +1,4 @@
-name: Droid Code Review
+name: Droid Code Review # Updated model syntax
 
 'on':
   pull_request:
