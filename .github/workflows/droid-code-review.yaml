@@ -35,11 +35,25 @@ jobs:
             echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           fi
 
+      # Fetch PR details for manual dispatch
+      - name: Fetch PR details
+        id: pr-details
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_DATA=$(gh api repos/${{ github.repository }}/pulls/${{ inputs.pr_number }})
+          echo "head_sha=$(echo "$PR_DATA" | jq -r '.head.sha')" >> $GITHUB_OUTPUT
+          echo "base_ref=$(echo "$PR_DATA" | jq -r '.base.ref')" >> $GITHUB_OUTPUT
+          echo "head_ref=$(echo "$PR_DATA" | jq -r '.head.ref')" >> $GITHUB_OUTPUT
+          echo "changed_files=$(echo "$PR_DATA" | jq -r '.changed_files')" >> $GITHUB_OUTPUT
+          echo "draft=$(echo "$PR_DATA" | jq -r '.draft')" >> $GITHUB_OUTPUT
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || steps.pr-details.outputs.head_sha }}
 
       - name: Check API keys
         env:
