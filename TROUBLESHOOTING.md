@@ -167,11 +167,12 @@ cat > ~/.factory/config.json << 'EOF'
 {
   "custom_models": [
     {
-      "model_display_name": "GLM-4.6 Coding Plan",
+      "model_display_name": "GLM-4.6 [Z.AI]",
       "model": "GLM-4.6",
-      "base_url": "https://api.z.ai/api/anthropic",
+      "base_url": "https://api.z.ai/api/coding/paas/v4",
       "api_key": "YOUR_MODEL_API_KEY_HERE",
-      "provider": "zia"
+      "provider": "generic-chat-completion-api",
+      "max_tokens": 131072
     }
   ]
 }

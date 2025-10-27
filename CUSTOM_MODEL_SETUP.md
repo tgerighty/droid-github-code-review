@@ -33,7 +33,7 @@ fi
 **Details**:
 - Creates `$HOME/.factory` directory (which is `/home/runner/.factory` on GitHub Actions ubuntu-latest runner)
 - Generates `config.json` with GLM-4.6 model configuration
-- Uses Z.ai's API endpoint: `https://api.z.ai/api/anthropic`
+- Uses Z.ai's API endpoint: `https://api.z.ai/api/coding/paas/v4`
 - Securely injects `MODEL_API_KEY` from GitHub secrets using jq
 - Verifies configuration without exposing the API key
 
@@ -42,11 +42,12 @@ fi
 {
   "custom_models": [
     {
-      "model_display_name": "GLM-4.6 Coding Plan",
+      "model_display_name": "GLM-4.6 [Z.AI]",
       "model": "GLM-4.6",
-      "base_url": "https://api.z.ai/api/anthropic",
+      "base_url": "https://api.z.ai/api/coding/paas/v4",
       "api_key": "<injected from MODEL_API_KEY secret>",
-      "provider": "zia"
+      "provider": "generic-chat-completion-api",
+      "max_tokens": 131072
     }
   ]
 }
@@ -204,10 +205,11 @@ To verify the custom model configuration is working:
 2. Look for the verification output showing:
    ```json
    {
-     "model_display_name": "GLM-4.6 Coding Plan",
+     "model_display_name": "GLM-4.6 [Z.AI]",
      "model": "GLM-4.6",
-     "base_url": "https://api.z.ai/api/anthropic",
-     "provider": "zia",
+     "base_url": "https://api.z.ai/api/coding/paas/v4",
+     "provider": "generic-chat-completion-api",
+     "max_tokens": 131072,
      "api_key_set": true
    }
    ```
@@ -242,11 +244,12 @@ To verify the custom model configuration is working:
 
 ## Model Information
 
-**Model Name**: GLM-4.6  
-**Display Name**: GLM-4.6 Coding Plan  
-**Provider**: Z.ai  
-**API Endpoint**: https://api.z.ai/api/anthropic  
-**Protocol**: Anthropic-compatible API
+**Model Name**: GLM-4.6
+**Display Name**: GLM-4.6 [Z.AI]
+**Provider**: Generic Chat Completion API
+**API Endpoint**: https://api.z.ai/api/coding/paas/v4
+**Protocol**: Generic Chat Completion API
+**Max Tokens**: 131072
 
 ## Future Enhancements
 
