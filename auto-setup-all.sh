@@ -5,6 +5,9 @@
 
 set -euo pipefail
 
+# Store original script directory
+SCRIPT_DIR=$(dirname "$0")
+
 echo "🚀 Auto-Setup Droid Code Review for All Repositories"
 echo "=================================================="
 
@@ -66,9 +69,9 @@ setup_repo() {
         
         # Create workflows directory
         mkdir -p .github/workflows
-        
-        # Copy workflow file
-        cp "$(dirname "$0")/droid-code-review.yaml" .github/workflows/
+
+        # Copy workflow file (use original script directory, not current temp directory)
+        cp "${SCRIPT_DIR:-$(dirname "$0")}/droid-code-review.yaml" .github/workflows/
         
         # Check if workflow already exists
         if [ -f ".github/workflows/droid-code-review.yaml" ]; then
