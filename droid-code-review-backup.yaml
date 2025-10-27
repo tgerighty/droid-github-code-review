@@ -194,11 +194,12 @@ jobs:
           {
             "custom_models": [
               {
-                "model_display_name": "GLM-4.6 Coding Plan",
+                "model_display_name": "GLM-4.6 [Z.AI]",
                 "model": "GLM-4.6",
-                "base_url": "https://api.z.ai/api/anthropic",
+                "base_url": "https://api.z.ai/api/coding/paas/v4",
                 "api_key": "MODEL_API_KEY_PLACEHOLDER",
-                "provider": "zia"
+                "provider": "generic-chat-completion-api",
+                "max_tokens": 131072
               }
             ]
           }
@@ -211,7 +212,7 @@ jobs:
           echo "✅ Custom model configuration created at $HOME/.factory/config.json"
 
           # Verify the config (without showing the API key)
-          jq '.custom_models[0] | {model_display_name, model, base_url, provider, api_key_set: (.api_key != "")}' "$HOME/.factory/config.json"
+          jq '.custom_models[0] | {model_display_name, model, base_url, provider, max_tokens, api_key_set: (.api_key != "")}' "$HOME/.factory/config.json"
 
       # OPTIMIZATION #10: Add early exit for no changes
       - name: Check for code changes
@@ -348,24 +349,51 @@ jobs:
           Task: Create a file called comments.json with this exact format:
           [{ "path": "path/to/file.js", "position": 42, "body": "Your comment here" }]
 
-          Focus on these types of issues:
+          CRITICAL ISSUES (must fix):
+          - Security vulnerabilities (SQL/XSS injection, insecure deserialization, path traversal)
+          - Resource leaks (unclosed files, connections, event listeners, memory leaks)
+          - Null/undefined dereferences that will cause runtime errors
           - Dead/unreachable code (if (false), while (false), code after return/throw/break)
-          - Broken control flow (missing break in switch, fallthrough bugs)
-          - Async/await mistakes (missing await, .then without return, unhandled promise rejections)
-          - Array/object mutations in React components or reducers
-          - UseEffect dependency array problems (missing deps, incorrect deps)
-          - Incorrect operator usage (== vs ===, && vs ||, = in conditions)
-          - Off-by-one errors in loops or array indexing
+          - Race conditions in async/parallel code
           - Integer overflow/underflow in calculations
-          - Regex catastrophic backtracking vulnerabilities
-          - Missing base cases in recursive functions
+          - Missing error handling for critical operations (file I/O, network, database)
+          
+          HIGH PRIORITY ISSUES:
+          - Performance bottlenecks (N+1 queries in loops, inefficient algorithms, missing caching)
+          - Broken control flow (missing break in switch, fallthrough bugs, infinite loops)
+          - Async/await mistakes (missing await, unhandled promise rejections, race conditions)
+          - Off-by-one errors in loops or array indexing
           - Incorrect type coercion that changes behavior
-          - Environment variable access without defaults or validation
-          - Null/undefined dereferences
-          - Resource leaks (unclosed files or connections)
-          - SQL/XSS injection vulnerabilities
-          - Concurrency/race conditions
-          - Missing error handling for critical operations
+          - UseEffect dependency array problems (missing deps, incorrect deps, infinite re-renders)
+          - Array/object mutations in React components or reducers
+          
+          MEDIUM PRIORITY ISSUES:
+          - SOLID principle violations (Single Responsibility, Open/Closed, Liskov, Interface Segregation, Dependency Inversion)
+          - Architectural issues (circular dependencies, god objects, tight coupling)
+          - Code quality violations (deep nesting, long functions, magic numbers/strings)
+          - Duplicate code (DRY violations)
+          - Missing or poor documentation for complex logic
+          - Hard-coded values that should be configurable
+          
+          LOW PRIORITY ISSUES:
+          - Inconsistent naming conventions
+          - Missing modern JavaScript patterns (destructuring, arrow functions, array methods)
+          - Suboptimal but functional code
+          - Minor code style improvements
+
+          CONTEXT ANALYSIS:
+          - Determine if PR is bug fix, new feature, refactor, or breaking change
+          - Consider impact on existing systems and backward compatibility
+          - Evaluate complexity vs benefit ratio for suggested changes
+          - Check if changes follow established patterns in codebase
+
+          IMPROVEMENT STRATEGY:
+          - For CRITICAL issues: Must be fixed before merge
+          - For HIGH issues: Strongly recommend fixing, may block merge
+          - For MEDIUM issues: Recommend fixing when time permits
+          - For LOW issues: Optional improvements, note in comments
+          - Always provide concrete, testable suggestions
+          - Consider effort vs impact when prioritizing fixes
 
           Comment format:
           - Clearly describe the issue: "This code block is unreachable due to the if (false) condition"
