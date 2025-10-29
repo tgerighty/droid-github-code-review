@@ -1,1 +1,19 @@
 .env
+
+# Local Droid Review Script - temporary and output files
+diff.txt
+files.json
+comments.json
+prompt.txt
+numstat.txt
+droidreview/
+.DS_Store
+
+# CodeRabbit artifacts
+coderabbit/
+*.txt
+
+# Local development
+*.log
+*.tmp
+*.bak

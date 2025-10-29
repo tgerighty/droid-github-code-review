@@ -25,6 +25,33 @@ if ! git rev-parse --git-dir > /dev/null 2>&1; then
     exit 1
 fi
 
+# Function to check if file should be ignored based on .gitignore
+should_ignore_file() {
+    local file="$1"
+    
+    # Read .gitignore if it exists and filter out comments/empty lines
+    if [ -f ".gitignore" ]; then
+        while IFS= read -r pattern; do
+            # Skip comments and empty lines
+            [[ "$pattern" =~ ^[[:space:]]*# ]] && continue
+            [[ -z "$pattern" ]] && continue
+            
+            # Remove leading/trailing whitespace
+            pattern=$(echo "$pattern" | xargs)
+            
+            # Convert pattern to regex
+            # Escape special regex characters, replace * with .*, handle leading /
+            regex_pattern=$(echo "$pattern" | sed 's/\./\\./g; s/\*/.*/g; s/^\//^/')
+            [[ "$pattern" == /* ]] || regex_pattern="/$regex_pattern"
+            
+            # Check if file matches the pattern
+            [[ "$file" =~ $regex_pattern ]] && return 0
+        done < ".gitignore"
+    fi
+    
+    return 1
+}
+
 # Get the current git status and changes
 echo -e "${BLUE}📊 Analyzing git changes...${NC}"
 
@@ -61,6 +88,15 @@ fi
 # Get changed files for context
 if [ -n "$PREVIOUS_COMMIT" ]; then
     CHANGED_FILES=$(git diff --name-only "${PREVIOUS_COMMIT}..${LATEST_COMMIT}")
+    # Filter out ignored files
+    FILTERED_FILES=""
+    while IFS= read -r file; do
+        if [ -n "$file" ] && ! should_ignore_file "$file"; then
+            FILTERED_FILES="${FILTERED_FILES}${file}
+"
+        fi
+    done <<< "$CHANGED_FILES"
+    CHANGED_FILES="$FILTERED_FILES"
     echo -e "${BLUE}Files changed:${NC}"
     echo "$CHANGED_FILES" | nl
     
@@ -72,6 +108,15 @@ if [ -n "$PREVIOUS_COMMIT" ]; then
 else
     # If no previous commit, show all tracked files
     CHANGED_FILES=$(git ls-tree -r HEAD --name-only)
+    # Filter out ignored files
+    FILTERED_FILES=""
+    while IFS= read -r file; do
+        if [ -n "$file" ] && ! should_ignore_file "$file"; then
+            FILTERED_FILES="${FILTERED_FILES}${file}
+"
+        fi
+    done <<< "$CHANGED_FILES"
+    CHANGED_FILES="$FILTERED_FILES"
     echo -e "${BLUE}All files in repository:${NC}"
     echo "$CHANGED_FILES" | nl
     
@@ -87,7 +132,7 @@ TEMP_FILES_DIR=$(mktemp -d)
 FILE_OBJECTS_FILE="$TEMP_FILES_DIR/file_objects.json"
 
 while IFS= read -r file; do
-    if [ -n "$file" ]; then
+    if [ -n "$file" ] && ! should_ignore_file "$file"; then
         # Get the patch for this file
         if [ -n "$PREVIOUS_COMMIT" ]; then
             PATCH=$(git diff "${PREVIOUS_COMMIT}..${LATEST_COMMIT}" -- "$file" 2>/dev/null || echo "")
