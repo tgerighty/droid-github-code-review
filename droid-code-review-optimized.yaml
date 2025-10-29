@@ -1,0 +1,148 @@
+name: Droid Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: droid-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  contents: read
+  issues: write
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Skip automated code review for draft PRs
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install Droid CLI
+        run: |
+          curl -fsSL https://app.factory.ai/cli | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          "$HOME/.local/bin/droid" --version
+
+      - name: Configure git identity
+        run: |
+          git config user.name "Droid Agent"
+          git config user.email "droidagent@factory.ai"
+
+      - name: Perform automated code review
+        env:
+          FACTORY_API_KEY: ${{ secrets.FACTORY_API_KEY }}
+          MODEL_API_KEY: ${{ secrets.MODEL_API_KEY }}
+        run: |
+          set -euo pipefail
+          
+          # Create .factory directory and configure custom model
+          mkdir -p "$HOME/.factory"
+          cat > "$HOME/.factory/config.json" << EOF
+          {
+            "custom_models": [
+              {
+                "model_display_name": "GLM-4.6 [Z.AI]",
+                "model": "GLM-4.6",
+                "base_url": "https://api.z.ai/api/coding/paas/v4",
+                "api_key": "${MODEL_API_KEY}",
+                "provider": "generic-chat-completion-api",
+                "max_tokens": 131072
+              }
+            ]
+          }
+          EOF
+          
+          cat > prompt.txt << 'EOF'
+          You are an advanced automated code review system performing extended analysis of pull request changes.
+
+          TASK: Review the current PR diff with comprehensive analysis and submit your findings using GitHub CLI.
+
+          Analysis Approach:
+          1. Fetch complete PR context including title, description, metadata, and all files
+          2. Analyze code changes with extended focus on:
+             - Security vulnerabilities and attack vectors
+             - Performance bottlenecks and optimization opportunities  
+             - Code logic errors and edge cases
+             - Data flow and state management issues
+             - Integration and compatibility problems
+             - Error handling and resilience gaps
+             - Resource management and memory leaks
+             - Concurrency and race conditions
+             - Type safety and validation weaknesses
+          3. Provide detailed feedback with actionable recommendations
+          4. Submit review using GitHub CLI with proper positioning
+
+          Extended Review Criteria:
+          - Critical security issues: injection flaws, authentication bypasses, data exposure
+          - Performance problems: inefficient algorithms, unnecessary computations, memory leaks
+          - Logic errors: off-by-one errors, incorrect conditions, infinite loops
+          - Data integrity issues: mutation problems, state corruption, race conditions
+          - Integration failures: API mismatches, version conflicts, breaking changes
+          - Error handling gaps: missing exception handling, improper cleanup
+          - Resource management: unclosed connections, file handles, memory
+          - Type safety: missing validations, incorrect casting, null/undefined handling
+          - Edge cases: boundary conditions, empty inputs, malformed data
+
+          Review Process:
+          1. Fetch PR data from: https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+          2. Examine all changed files and understand context
+          3. Perform line-by-line analysis with focus on real-world impact
+          4. Cross-reference changes with existing codebase for consistency
+          5. Identify potential breaking changes and compatibility issues
+          6. Check for proper error handling and edge case coverage
+          7. Validate against security best practices and common vulnerabilities
+          8. Assess performance implications and optimization opportunities
+
+          Comment Requirements:
+          - Lead with severity level (Critical/High/Medium/Low)
+          - Provide clear problem description with technical details
+          - Explain real-world impact and potential consequences
+          - Offer specific, actionable solution with code examples
+          - Include preventive measures for similar issues
+          - Reference relevant documentation or best practices when applicable
+          - No emojis, maintain professional technical tone
+
+          Submission Guidelines:
+          - Use GitHub CLI to submit review with inline comments
+          - Position comments accurately on modified lines from diff
+          - Include comprehensive summary in review body
+          - Prioritize issues by severity and impact
+          - Maximum 15 comments total, focus on most significant issues
+
+          Repository: ${{ github.repository }}
+          PR Number: ${{ github.event.pull_request.number }}
+          PR Author: ${{ github.event.pull_request.user.login }}
+          Base Branch: ${{ github.event.pull_request.base.ref }}
+          Head Branch: ${{ github.event.pull_request.head.ref }}
+
+          Begin comprehensive review and submit findings using GitHub CLI.
+          EOF
+
+          # Run droid exec with extended analysis and custom model
+          echo "Starting extended code review analysis..."
+          droid exec -f prompt.txt --model custom:GLM-4.6 --skip-permissions-unsafe || {
+            echo "❌ ERROR: Review analysis failed"
+            exit 1
+          }
+
+      - name: Upload debug artifacts on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: droid-review-debug-${{ github.run_id }}
+          path: |
+            prompt.txt
+            ${{ runner.home }}/.factory/logs/droid-log-single.log
+            ${{ runner.home }}/.factory/logs/console.log
+          if-no-files-found: ignore
+          retention-days: 7
