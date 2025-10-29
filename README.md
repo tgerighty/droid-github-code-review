@@ -2,6 +2,13 @@
 
 Automated code review workflow that uses AI to analyze pull requests and provide actionable feedback.
 
+## Source Directory
+
+**Repository**: `/Users/terry.gerighty/nxio.ai/tools/droid-github-code-review`
+**Purpose**: AI-powered GitHub code review workflow with comprehensive analysis
+**Last Updated**: 2025-10-29
+**Working Directory**: `/Users/terry.gerighty/nxio.ai/tools/droid-github-code-review`
+
 ## Files
 
 ### Installation Scripts
