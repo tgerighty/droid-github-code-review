@@ -424,6 +424,7 @@ try:
 except Exception as e:
     print(f"Error processing comments: {e}")
 PYTHON_SCRIPT
+PYTHON_SCRIPT
 fi
 
 # Add metadata section
