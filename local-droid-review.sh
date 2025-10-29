@@ -92,8 +92,12 @@ while IFS= read -r file; do
         if [ -n "$PREVIOUS_COMMIT" ]; then
             PATCH=$(git diff "${PREVIOUS_COMMIT}..${LATEST_COMMIT}" -- "$file" 2>/dev/null || echo "")
         else
-            # If no previous commit, show the full file content
-            PATCH=$(git show "HEAD:$file" 2>/dev/null || echo "")
+            # If no previous commit, show the full file content if it exists
+            if [ -f "$file" ]; then
+                PATCH=$(cat "$file" 2>/dev/null || echo "")
+            else
+                PATCH=""
+            fi
         fi
         
         if [ -n "$PATCH" ]; then
@@ -281,9 +285,9 @@ TIMESTAMP=$(date '+%Y-%m-%dT%H-%M-%S')
 REPORT_FILE="droidreview/Droid Review ${TIMESTAMP}.md"
 
 # Get git information
-GIT_BRANCH=$(git branch --show-current)
-GIT_COMMIT=$(git rev-parse HEAD --short)
-GIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+GIT_BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+GIT_COMMIT=$(git rev-parse HEAD --short 2>/dev/null || echo "unknown")
+GIT_AUTHOR=$(git log -1 --pretty=format:'%an' 2>/dev/null || echo "unknown")
 
 # Count comments
 COMMENT_COUNT=0
@@ -298,7 +302,7 @@ cat > "$REPORT_FILE" << EOF
 **Branch:** $GIT_BRANCH  
 **Commit:** $GIT_COMMIT  
 **Author:** $GIT_AUTHOR  
-**Files Changed:** $(echo "$CHANGED_FILES" | wc -l | tr -d ' ')  
+**Files Changed:** $(echo "$CHANGED_FILES" 2>/dev/null | wc -l | tr -d ' ' || echo "0")  
 **Issues Found:** $COMMENT_COUNT  
 
 ---
