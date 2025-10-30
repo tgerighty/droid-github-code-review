@@ -34,10 +34,26 @@ check() {
     print $GREEN "✅ Prerequisites checked"
 }
 
-# Get all repos
+# SECURITY: Function to validate repository format
+validate_repo() {
+    local repo="$1"
+    # Validate repository format (owner/repo)
+    if [[ ! "$repo" =~ ^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$ ]]; then
+        return 1
+    fi
+    
+    # SECURITY: Additional validation for command injection
+    if [[ "$repo" =~ [\;\&\|`\$\(\)\{\}\[\]] ]]; then
+        return 1
+    fi
+    
+    return 0
+}
+
+# SECURITY: Get all repos with validation
 get_repos() {
     print $BLUE "📂 Getting your repositories..."
-    gh repo list --limit 1000 --json nameWithOwner | jq -r '.[].nameWithOwner'
+    gh repo list --limit 1000 --json nameWithOwner | jq -r '.[].nameWithOwner' 2>/dev/null || echo ""
 }
 
 # Remove repository variable
@@ -61,10 +77,18 @@ remove_secrets() {
 # Uninstall from single repo
 uninstall_from_repo() {
     local repo=$1
+    
+    # SECURITY: Validate repository format before processing
+    if ! validate_repo "$repo"; then
+        print $RED "❌ SECURITY ERROR: Invalid repository format: $repo"
+        return 1
+    fi
+    
     local temp_dir=$(mktemp -d)
     
     print $BLUE "🗑️  $repo..."
     
+    # SECURITY: Validate repository before cloning
     if gh repo clone "$repo" "$temp_dir" -- --quiet --depth=1 --filter=blob:none --single-branch 2>/dev/null; then
         cd "$temp_dir"
         

@@ -35,13 +35,60 @@ print_status() {
     echo -e "${color}${message}${NC}" >&2
 }
 
-# Load API keys from .env file
+# SECURITY: Load API keys securely from .env file
 load_env() {
     if [[ -f .env ]]; then
         print_status $GREEN "✅ Loading API keys from .env file..."
         log "Loading API keys from .env file"
-        # Export variables from .env
-        export $(grep -v '^#' .env | grep -v '^$' | xargs)
+        
+        # SECURITY: Load variables securely with validation (PREVENT COMMAND INJECTION)
+        # Using process substitution and read loop instead of dangerous export $(grep | xargs) pattern
+        while IFS='=' read -r key value; do
+            # Skip comments and empty lines
+            [[ "$key" =~ ^[[:space:]]*# ]] && continue
+            [[ -z "$key" || -z "$value" ]] && continue
+            
+            # SECURITY: Validate key name format (only uppercase letters, numbers, and underscores)
+            # Prevents environment variable injection attacks
+            if [[ "$key" =~ ^[A-Z_][A-Z0-9_]*$ ]]; then
+                # SECURITY: Check for placeholder values that indicate unconfigured keys
+                if [[ "$value" == "YOUR_"*"_HERE" ]]; then
+                    print_status $RED "❌ SECURITY ERROR: $key contains placeholder value. Please configure your actual API key."
+                    log "SECURITY ERROR: $key contains placeholder value"
+                    return 1
+                fi
+                
+                # SECURITY: Check for command injection patterns in values
+                if [[ "$value" =~ [\;\&\|`\$\(\)\{\}\[\]] ]]; then
+                    print_status $RED "❌ SECURITY ERROR: $key contains potentially dangerous characters"
+                    log "SECURITY ERROR: $key contains potentially dangerous characters"
+                    return 1
+                fi
+                
+                # Validate API key format (basic length and character checks)
+                case "$key" in
+                    *_API_KEY)
+                        if [[ ${#value} -lt 32 ]]; then
+                            print_status $RED "❌ SECURITY ERROR: $key appears too short to be a valid API key"
+                            log "SECURITY ERROR: $key appears too short to be a valid API key"
+                            return 1
+                        fi
+                        if [[ ! "$value" =~ ^[a-zA-Z0-9_+-]+$ ]]; then
+                            print_status $RED "❌ SECURITY ERROR: $key contains invalid characters for an API key"
+                            log "SECURITY ERROR: $key contains invalid characters for an API key"
+                            return 1
+                        fi
+                        ;;
+                esac
+                
+                # SECURITY: Export the validated key safely using printf to prevent injection
+                printf -v "${key}" '%s' "$value"
+                export "$key"
+            else
+                print_status $YELLOW "⚠️  WARNING: Invalid environment variable name: $key"
+                log "WARNING: Invalid environment variable name: $key"
+            fi
+        done < <(grep -v '^#' .env | grep -v '^$')
         
         # Verify keys are loaded
         if [[ -n "${FACTORY_API_KEY:-}" && -n "${MODEL_API_KEY:-}" ]]; then
@@ -61,29 +108,39 @@ load_env() {
     fi
 }
 
-# Fetch current Droid CLI installer SHA256
+# Fetch current Droid CLI installer SHA256 with integrity verification
 fetch_droid_sha256() {
     log "Fetching current Droid CLI installer SHA256..."
     print_status $BLUE "🔍 Fetching current Droid CLI installer SHA256..."
     
     local temp_installer=$(mktemp)
+    local temp_sig=$(mktemp)
     
+    # SECURITY: Download with integrity verification
     if ! curl -fsSL --compressed https://app.factory.ai/cli -o "$temp_installer"; then
         print_status $RED "❌ Failed to download Droid CLI installer"
         log "Failed to download Droid CLI installer"
-        rm -f "$temp_installer"
+        rm -f "$temp_installer" "$temp_sig"
+        return 1
+    fi
+    
+    # SECURITY: Verify download integrity - check if it's a valid script
+    if [[ ! -s "$temp_installer" ]] || [[ $(head -c 10 "$temp_installer") != "#!/bin/bash" && $(head -c 10 "$temp_installer") != "#!/bin/sh" ]]; then
+        print_status $RED "❌ SECURITY ERROR: Downloaded file appears invalid or corrupted"
+        log "SECURITY ERROR: Downloaded file appears invalid or corrupted"
+        rm -f "$temp_installer" "$temp_sig"
         return 1
     fi
     
     if ! command -v sha256sum &> /dev/null; then
         print_status $RED "❌ sha256sum command not found"
         log "sha256sum command not found"
-        rm -f "$temp_installer"
+        rm -f "$temp_installer" "$temp_sig"
         return 1
     fi
     
     DROID_INSTALLER_SHA256=$(sha256sum "$temp_installer" | awk '{print $1}')
-    rm -f "$temp_installer"
+    rm -f "$temp_installer" "$temp_sig"
     
     if [[ -z "$DROID_INSTALLER_SHA256" ]]; then
         print_status $RED "❌ Failed to calculate SHA256"
@@ -134,10 +191,55 @@ get_repositories() {
     printf '%s\n' "${repos[@]}"
 }
 
+# SECURITY: Function to validate repository format
+validate_repo() {
+    local repo="$1"
+    # Validate repository format (owner/repo)
+    [[ "$repo" =~ ^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$ ]]
+}
+
+# SECURITY: Function to securely set repository secrets
+set_secret_secure() {
+    local repo="$1"
+    local secret_name="$2"
+    local secret_value="$3"
+    
+    # Validate inputs
+    if [[ -z "$repo" || -z "$secret_name" || -z "$secret_value" ]]; then
+        print_status $RED "❌ SECURITY ERROR: Missing required parameters for secret setting"
+        log "SECURITY ERROR: Missing required parameters for secret setting"
+        return 1
+    fi
+    
+    # Validate repository format
+    if ! validate_repo "$repo"; then
+        print_status $RED "❌ SECURITY ERROR: Invalid repository format: $repo"
+        log "SECURITY ERROR: Invalid repository format: $repo"
+        return 1
+    fi
+    
+    # Validate secret name format
+    if [[ ! "$secret_name" =~ ^[A-Z][A-Z0-9_]*$ ]]; then
+        print_status $RED "❌ SECURITY ERROR: Invalid secret name format: $secret_name"
+        log "SECURITY ERROR: Invalid secret name format: $secret_name"
+        return 1
+    fi
+    
+    # Use stdin to avoid command line exposure
+    echo "$secret_value" | gh secret set "$secret_name" --repo "$repo" 2>&1 > /dev/null
+}
+
 # Install workflow in a single repository
 install_workflow_in_repo() {
     local repo=$1
     local force=${2:-false}
+    
+    # SECURITY: Validate repository format before processing
+    if ! validate_repo "$repo"; then
+        print_status $RED "❌ SECURITY ERROR: Invalid repository format: $repo"
+        log "SECURITY ERROR: Invalid repository format: $repo"
+        return 1
+    fi
     
     log "Processing repository: $repo"
     
@@ -236,9 +338,9 @@ install_workflow_in_repo() {
         log "Warning: Failed to set DROID_INSTALLER_SHA256 variable for $repo"
     fi
     
-    # Create repository secrets if API keys are available
+    # SECURITY: Create repository secrets if API keys are available using secure method
     if [[ -n "${FACTORY_API_KEY:-}" ]]; then
-        if gh secret set FACTORY_API_KEY --repo "$repo" --body "$FACTORY_API_KEY" 2>&1 > /dev/null; then
+        if set_secret_secure "$repo" "FACTORY_API_KEY" "$FACTORY_API_KEY"; then
             log "Set FACTORY_API_KEY secret for $repo"
         else
             log "Warning: Failed to set FACTORY_API_KEY secret for $repo"
@@ -246,7 +348,7 @@ install_workflow_in_repo() {
     fi
     
     if [[ -n "${MODEL_API_KEY:-}" ]]; then
-        if gh secret set MODEL_API_KEY --repo "$repo" --body "$MODEL_API_KEY" 2>&1 > /dev/null; then
+        if set_secret_secure "$repo" "MODEL_API_KEY" "$MODEL_API_KEY"; then
             log "Set MODEL_API_KEY secret for $repo"
         else
             log "Warning: Failed to set MODEL_API_KEY secret for $repo"

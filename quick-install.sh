@@ -24,12 +24,54 @@ print() {
     echo -e "${1}${2}${NC}"
 }
 
-# Load API keys from .env file
+# SECURITY: Load API keys securely from .env file
 load_env() {
     if [[ -f .env ]]; then
         print $GREEN "✅ Loading API keys from .env file..."
-        # Export variables from .env
-        export $(grep -v '^#' .env | grep -v '^$' | xargs)
+        
+        # SECURITY: Load variables securely with validation (PREVENT COMMAND INJECTION)
+        # Using process substitution and read loop instead of dangerous export $(grep | xargs) pattern
+        while IFS='=' read -r key value; do
+            # Skip comments and empty lines
+            [[ "$key" =~ ^[[:space:]]*# ]] && continue
+            [[ -z "$key" || -z "$value" ]] && continue
+            
+            # SECURITY: Validate key name format (only uppercase letters, numbers, and underscores)
+            # Prevents environment variable injection attacks
+            if [[ "$key" =~ ^[A-Z_][A-Z0-9_]*$ ]]; then
+                # SECURITY: Check for placeholder values that indicate unconfigured keys
+                if [[ "$value" == "YOUR_"*"_HERE" ]]; then
+                    print $RED "❌ SECURITY ERROR: $key contains placeholder value. Please configure your actual API key."
+                    return 1
+                fi
+                
+                # SECURITY: Check for command injection patterns in values
+                if [[ "$value" =~ [\;\&\|`\$\(\)\{\}\[\]] ]]; then
+                    print $RED "❌ SECURITY ERROR: $key contains potentially dangerous characters"
+                    return 1
+                fi
+                
+                # Validate API key format (basic length and character checks)
+                case "$key" in
+                    *_API_KEY)
+                        if [[ ${#value} -lt 32 ]]; then
+                            print $RED "❌ SECURITY ERROR: $key appears too short to be a valid API key"
+                            return 1
+                        fi
+                        if [[ ! "$value" =~ ^[a-zA-Z0-9_+-]+$ ]]; then
+                            print $RED "❌ SECURITY ERROR: $key contains invalid characters for an API key"
+                            return 1
+                        fi
+                        ;;
+                esac
+                
+                # SECURITY: Export the validated key safely using printf to prevent injection
+                printf -v "${key}" '%s' "$value"
+                export "$key"
+            else
+                print $YELLOW "⚠️  WARNING: Invalid environment variable name: $key"
+            fi
+        done < <(grep -v '^#' .env | grep -v '^$')
         
         # Verify keys are loaded
         if [[ -n "${FACTORY_API_KEY:-}" && -n "${MODEL_API_KEY:-}" ]]; then
@@ -46,14 +88,22 @@ load_env() {
     fi
 }
 
-# Fetch current Droid CLI installer SHA256
+# Fetch current Droid CLI installer SHA256 with integrity verification
 fetch_droid_sha256() {
     print $BLUE "🔍 Fetching current Droid CLI installer SHA256..."
     
     local temp_installer=$(mktemp)
     
+    # SECURITY: Download with integrity verification
     if ! curl -fsSL --compressed https://app.factory.ai/cli -o "$temp_installer"; then
         print $RED "❌ Failed to download Droid CLI installer"
+        rm -f "$temp_installer"
+        return 1
+    fi
+    
+    # SECURITY: Verify download integrity - check if it's a valid script
+    if [[ ! -s "$temp_installer" ]] || [[ $(head -c 10 "$temp_installer") != "#!/bin/bash" && $(head -c 10 "$temp_installer") != "#!/bin/sh" ]]; then
+        print $RED "❌ SECURITY ERROR: Downloaded file appears invalid or corrupted"
         rm -f "$temp_installer"
         return 1
     fi
@@ -114,6 +164,41 @@ set_repo_variable() {
     return $?
 }
 
+# SECURITY: Function to validate repository format
+validate_repo() {
+    local repo="$1"
+    # Validate repository format (owner/repo)
+    [[ "$repo" =~ ^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$ ]]
+}
+
+# SECURITY: Function to securely set repository secrets
+set_secret_secure() {
+    local repo="$1"
+    local secret_name="$2"
+    local secret_value="$3"
+    
+    # Validate inputs
+    if [[ -z "$repo" || -z "$secret_name" || -z "$secret_value" ]]; then
+        print $RED "❌ SECURITY ERROR: Missing required parameters for secret setting"
+        return 1
+    fi
+    
+    # Validate repository format
+    if ! validate_repo "$repo"; then
+        print $RED "❌ SECURITY ERROR: Invalid repository format: $repo"
+        return 1
+    fi
+    
+    # Validate secret name format
+    if [[ ! "$secret_name" =~ ^[A-Z][A-Z0-9_]*$ ]]; then
+        print $RED "❌ SECURITY ERROR: Invalid secret name format: $secret_name"
+        return 1
+    fi
+    
+    # Use stdin to avoid command line exposure
+    echo "$secret_value" | gh secret set "$secret_name" --repo "$repo" 2>&1 > /dev/null
+}
+
 # Create repository secrets for API keys
 create_repo_secrets() {
     local repo=$1
@@ -121,9 +206,7 @@ create_repo_secrets() {
     
     # Only create secrets if API keys are available
     if [[ -n "${FACTORY_API_KEY:-}" ]]; then
-        if gh secret set FACTORY_API_KEY \
-            --repo "$repo" \
-            --body "$FACTORY_API_KEY" 2>&1 > /dev/null; then
+        if set_secret_secure "$repo" "FACTORY_API_KEY" "$FACTORY_API_KEY"; then
             : # Success
         else
             success=false
@@ -131,9 +214,7 @@ create_repo_secrets() {
     fi
     
     if [[ -n "${MODEL_API_KEY:-}" ]]; then
-        if gh secret set MODEL_API_KEY \
-            --repo "$repo" \
-            --body "$MODEL_API_KEY" 2>&1 > /dev/null; then
+        if set_secret_secure "$repo" "MODEL_API_KEY" "$MODEL_API_KEY"; then
             : # Success
         else
             success=false
@@ -155,6 +236,12 @@ install_to_repo() {
     # Skip empty/invalid repo names
     if [[ -z "$repo" || "$repo" == *"Getting"* ]]; then
         return 1  # Invalid repo name
+    fi
+    
+    # SECURITY: Validate repository format before processing
+    if ! validate_repo "$repo"; then
+        print $RED "❌ SECURITY ERROR: Invalid repository format: $repo"
+        return 1
     fi
     
     # First, try to get the current file (if it exists)

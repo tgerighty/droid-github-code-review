@@ -19,6 +19,22 @@ print_status() {
     echo -e "${color}${message}${NC}"
 }
 
+# SECURITY: Function to validate repository format
+validate_repo() {
+    local repo="$1"
+    # Validate repository format (owner/repo)
+    if [[ ! "$repo" =~ ^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$ ]]; then
+        return 1
+    fi
+    
+    # SECURITY: Additional validation for command injection
+    if [[ "$repo" =~ [\;\&\|`\$\(\)\{\}\[\]] ]]; then
+        return 1
+    fi
+    
+    return 0
+}
+
 # Check prerequisites
 check_prerequisites() {
     if ! command -v gh &> /dev/null; then
@@ -208,12 +224,19 @@ remove_workflow() {
     print_status $RED "🗑️  Removing workflow from ${#repos[@]} repositories..."
     
     for repo in "${repos[@]}"; do
+        # SECURITY: Validate repository format before processing
+        if ! validate_repo "$repo"; then
+            print_status $RED "❌ SECURITY ERROR: Invalid repository format: $repo"
+            continue
+        fi
+        
         print_status $BLUE "📁 Processing $repo..."
         
         # Create temp directory
         local temp_dir=$(mktemp -d)
         trap "rm -rf $temp_dir" RETURN
         
+        # SECURITY: Validate repository before cloning
         if gh repo clone "$repo" "$temp_dir" -- --quiet --depth=1 --filter=blob:none --single-branch; then
             cd "$temp_dir"
             

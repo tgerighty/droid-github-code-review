@@ -99,10 +99,33 @@ remove_repo_secrets() {
     return 0
 }
 
+# SECURITY: Function to validate repository format
+validate_repo() {
+    local repo="$1"
+    # Validate repository format (owner/repo)
+    if [[ ! "$repo" =~ ^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$ ]]; then
+        return 1
+    fi
+    
+    # SECURITY: Additional validation for command injection
+    if [[ "$repo" =~ [\;\&\|`\$\(\)\{\}\[\]] ]]; then
+        return 1
+    fi
+    
+    return 0
+}
+
 # Remove workflow from a single repository
 uninstall_workflow_from_repo() {
     local repo=$1
     local keep_backup=${2:-false}
+    
+    # SECURITY: Validate repository format before processing
+    if ! validate_repo "$repo"; then
+        print_status $RED "❌ SECURITY ERROR: Invalid repository format: $repo"
+        log "SECURITY ERROR: Invalid repository format: $repo"
+        return 1
+    fi
     
     log "Processing repository: $repo"
     print_status $BLUE "🔄 Processing $repo..."
@@ -111,7 +134,7 @@ uninstall_workflow_from_repo() {
     local temp_dir=$(mktemp -d)
     trap "rm -rf $temp_dir" RETURN
     
-    # Clone the repository
+    # SECURITY: Validate repository before cloning
     if ! gh repo clone "$repo" "$temp_dir" -- --quiet --depth=1 --filter=blob:none --single-branch 2>/dev/null; then
         print_status $RED "❌ Failed to clone $repo"
         log "Failed to clone $repo"

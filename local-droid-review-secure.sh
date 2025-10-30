@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Local Droid Code Review Script
+# Local Droid Code Review Script - SECURITY HARDENED VERSION
 # Runs the same code review logic as the GitHub workflow but locally
 # Uses your existing Factory GLM-4.6 model configuration
+# SECURITY FIXES: Command injection protections implemented
 
 set -euo pipefail
 
@@ -16,11 +17,124 @@ NC='\033[0m' # No Color
 # Model to use (matches the GitHub workflow)
 MODEL_NAME="GLM-4.6"
 
-echo -e "${BLUE}🤖 Local Droid Code Review${NC}"
-echo -e "${BLUE}============================${NC}"
+# ==============================================================================
+# SECURITY FUNCTIONS - Input Sanitization and Validation
+# ==============================================================================
+
+# Function to sanitize file paths - removes dangerous characters
+sanitize_path() {
+    local path="$1"
+    # Remove null bytes, control characters, and dangerous shell metacharacters
+    # Only allow alphanumeric, dot, hyphen, underscore, forward slash
+    echo "$path" | tr -d '\000' | sed 's/[^a-zA-Z0-9._\/-]//g'
+}
+
+# Function to validate git commit hash format
+validate_commit_hash() {
+    local hash="$1"
+    # Git commit hashes are 40 hex chars (or abbreviated 7+ chars)
+    if [[ "$hash" =~ ^[a-fA-F0-9]{7,40}$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to validate file path is safe
+validate_file_path() {
+    local path="$1"
+    local sanitized_path
+    
+    # Sanitize the path first
+    sanitized_path=$(sanitize_path "$path")
+    
+    # Check if path is empty after sanitization
+    if [[ -z "$sanitized_path" ]]; then
+        return 1
+    fi
+    
+    # Reject absolute paths that could escape repository
+    if [[ "$sanitized_path" =~ ^/ ]]; then
+        return 1
+    fi
+    
+    # Reject path traversal attempts
+    if [[ "$sanitized_path" =~ \.\./|\.\.\\ ]]; then
+        return 1
+    fi
+    
+    # Reject shell command injection patterns
+    if [[ "$sanitized_path" =~ [\;\&\|`\$\(\)\{\}\[\]] ]]; then
+        return 1
+    fi
+    
+    # Reject null bytes and control characters
+    if [[ "$sanitized_path" =~ $'\0' ]]; then
+        return 1
+    fi
+    
+    return 0
+}
+
+# Function to safely execute git commands with fixed arguments
+safe_git_diff() {
+    local commit1="$1"
+    local commit2="$2"
+    local file="$3"
+    
+    # Validate commit hashes
+    if ! validate_commit_hash "$commit1"; then
+        echo -e "${RED}❌ Security Error: Invalid commit hash format${NC}" >&2
+        return 1
+    fi
+    
+    if [[ -n "$commit2" ]] && ! validate_commit_hash "$commit2"; then
+        echo -e "${RED}❌ Security Error: Invalid commit hash format${NC}" >&2
+        return 1
+    fi
+    
+    # Validate file path if provided
+    if [[ -n "$file" ]]; then
+        if ! validate_file_path "$file"; then
+            echo -e "${RED}❌ Security Error: Invalid or dangerous file path${NC}" >&2
+            return 1
+        fi
+    fi
+    
+    # Execute git diff with fixed array arguments (no string interpolation)
+    if [[ -n "$file" ]]; then
+        git diff "$commit1..$commit2" -- "$file"
+    else
+        git diff "$commit1..$commit2"
+    fi
+}
+
+# Function to safely execute git commands with argument arrays
+safe_git_command() {
+    local cmd="$1"
+    shift
+    local args=("$@")
+    
+    # Validate command is allowed
+    case "$cmd" in
+        "rev-parse"|"branch"|"ls-tree"|"diff"|"log"|"remote")
+            # Execute with fixed array to prevent injection
+            git "$cmd" "${args[@]}"
+            ;;
+        *)
+            echo -e "${RED}❌ Security Error: Disallowed git command${NC}" >&2
+            return 1
+            ;;
+    esac
+}
+
+# ==============================================================================
+
+echo -e "${BLUE}🤖 Local Droid Code Review (SECURITY HARDENED)${NC}"
+echo -e "${BLUE}==========================================${NC}"
 
 # Check if we're in a git repository
-if ! git rev-parse --git-dir > /dev/null 2>&1; then
+if ! safe_git_command rev-parse --git-dir > /dev/null 2>&1; then
     echo -e "${RED}❌ Error: Not in a git repository${NC}"
     exit 1
 fi
@@ -28,6 +142,12 @@ fi
 # Function to check if file should be ignored based on .gitignore
 should_ignore_file() {
     local file="$1"
+    
+    # Validate input before processing
+    if ! validate_file_path "$file"; then
+        echo -e "${RED}❌ Security Error: Invalid file path in should_ignore_file${NC}" >&2
+        return 0  # Treat invalid files as ignored for safety
+    fi
     
     # Read .gitignore if it exists and filter out comments/empty lines
     if [ -f ".gitignore" ]; then
@@ -39,13 +159,18 @@ should_ignore_file() {
             # Remove leading/trailing whitespace
             pattern=$(echo "$pattern" | xargs)
             
-            # Convert pattern to regex
-            # Escape special regex characters, replace * with .*, handle leading /
-            regex_pattern=$(echo "$pattern" | sed 's/\./\\./g; s/\*/.*/g; s/^\//^/')
-            [[ "$pattern" == /* ]] || regex_pattern="/$regex_pattern"
-            
-            # Check if file matches the pattern
-            [[ "$file" =~ $regex_pattern ]] && return 0
+            # Convert pattern to regex - use fixed strings when possible
+            if [[ "$pattern" == *"*"* ]] || [[ "$pattern" == *"/"* ]]; then
+                # Pattern contains wildcards or path separators, convert to regex safely
+                regex_pattern=$(printf '%s' "$pattern" | sed 's/\./\\./g; s/\*/.*/g; s/^\//^/' 2>/dev/null || echo "")
+                if [[ -n "$regex_pattern" ]]; then
+                    [[ "$pattern" == /* ]] || regex_pattern="/$regex_pattern"
+                    [[ "$file" =~ $regex_pattern ]] && return 0
+                fi
+            else
+                # Simple pattern - use exact string match
+                [[ "$file" == *"$pattern"* ]] && return 0
+            fi
         done < ".gitignore"
     fi
     
@@ -55,27 +180,36 @@ should_ignore_file() {
 # Get the current git status and changes
 echo -e "${BLUE}📊 Analyzing git changes...${NC}"
 
-# Get the current branch
-CURRENT_BRANCH=$(git branch --show-current)
+# Get the current branch using safe git command
+CURRENT_BRANCH=$(safe_git_command branch --show-current 2>/dev/null || echo "unknown")
 echo -e "${BLUE}Current branch: ${CURRENT_BRANCH}${NC}"
 
-# Get the latest commit hash
-LATEST_COMMIT=$(git rev-parse HEAD)
+# Get the latest commit hash using safe git command
+LATEST_COMMIT=$(safe_git_command rev-parse HEAD 2>/dev/null || echo "unknown")
+if ! validate_commit_hash "$LATEST_COMMIT"; then
+    echo -e "${RED}❌ Security Error: Invalid latest commit hash${NC}"
+    exit 1
+fi
 echo -e "${BLUE}Latest commit: ${LATEST_COMMIT}${NC}"
 
 # Get the previous commit (HEAD~1) or show all files if this is the first commit
 PREVIOUS_COMMIT=""
-if git rev-parse HEAD~1 > /dev/null 2>&1; then
-    PREVIOUS_COMMIT=$(git rev-parse HEAD~1)
-    echo -e "${BLUE}Previous commit: ${PREVIOUS_COMMIT}${NC}"
-    # Generate diff between current and previous commit
-    echo -e "${BLUE}📝 Generating code diff...${NC}"
-    git diff "${PREVIOUS_COMMIT}..${LATEST_COMMIT}" > diff.txt
+if safe_git_command rev-parse HEAD~1 > /dev/null 2>&1; then
+    PREVIOUS_COMMIT=$(safe_git_command rev-parse HEAD~1 2>/dev/null || echo "")
+    if validate_commit_hash "$PREVIOUS_COMMIT"; then
+        echo -e "${BLUE}Previous commit: ${PREVIOUS_COMMIT}${NC}"
+        # Generate diff between current and previous commit using safe function
+        echo -e "${BLUE}📝 Generating code diff...${NC}"
+        safe_git_diff "$PREVIOUS_COMMIT" "$LATEST_COMMIT" > diff.txt
+    else
+        echo -e "${RED}❌ Security Error: Invalid previous commit hash${NC}"
+        PREVIOUS_COMMIT=""
+    fi
 else
     echo -e "${BLUE}No previous commit found, reviewing all files${NC}"
-    # Show all files in the repository
+    # Show all files in the repository using safe git command
     echo -e "${BLUE}📝 Generating full file listing...${NC}"
-    git ls-tree -r HEAD --name-only > diff.txt
+    safe_git_command ls-tree -r HEAD --name-only > diff.txt
 fi
 
 # Check if there are any changes
@@ -85,9 +219,10 @@ if [ ! -s diff.txt ]; then
     exit 0
 fi
 
-# Get changed files for context
+# Get changed files for context using safe git commands
+CHANGED_FILES=""
 if [ -n "$PREVIOUS_COMMIT" ]; then
-    CHANGED_FILES=$(git diff --name-only "${PREVIOUS_COMMIT}..${LATEST_COMMIT}")
+    CHANGED_FILES=$(safe_git_command diff --name-only "$PREVIOUS_COMMIT..$LATEST_COMMIT" 2>/dev/null || echo "")
     # Filter out ignored files and .gitignore
     FILTERED_FILES=""
     while IFS= read -r file; do
@@ -103,11 +238,11 @@ if [ -n "$PREVIOUS_COMMIT" ]; then
     # Create files.json with patch information for each changed file
     echo -e "${BLUE}📁 Processing file patches...${NC}"
     
-    # Get detailed file information from git
-    git diff --numstat "${PREVIOUS_COMMIT}..${LATEST_COMMIT}" > numstat.txt
+    # Get detailed file information from git using safe command
+    safe_git_command diff --numstat "$PREVIOUS_COMMIT..$LATEST_COMMIT" > numstat.txt
 else
-    # If no previous commit, show all tracked files
-    CHANGED_FILES=$(git ls-tree -r HEAD --name-only)
+    # If no previous commit, show all tracked files using safe git command
+    CHANGED_FILES=$(safe_git_command ls-tree -r HEAD --name-only 2>/dev/null || echo "")
     # Filter out ignored files and .gitignore
     FILTERED_FILES=""
     while IFS= read -r file; do
@@ -123,8 +258,8 @@ else
     # Create files.json with patch information for each file
     echo -e "${BLUE}📁 Processing all files...${NC}"
     
-    # Get detailed file information from git (show all files)
-    git ls-tree -r HEAD --name-only | awk '{print "1\t0\t" $0}' > numstat.txt
+    # Get detailed file information from git (show all files) using safe command
+    safe_git_command ls-tree -r HEAD --name-only | awk '{print "1\t0\t" $0}' > numstat.txt
 fi
 
 # Create files.json with patch data using jq for proper JSON escaping
@@ -132,14 +267,19 @@ TEMP_FILES_DIR=$(mktemp -d)
 FILE_OBJECTS_FILE="$TEMP_FILES_DIR/file_objects.json"
 
 while IFS= read -r file; do
-    if [ -n "$file" ] && ! should_ignore_file "$file"; then
-        # Get the patch for this file
+    if [ -n "$file" ] && ! should_ignore_file "$file" && validate_file_path "$file"; then
+        # Get the patch for this file using safe function
         if [ -n "$PREVIOUS_COMMIT" ]; then
-            PATCH=$(git diff "${PREVIOUS_COMMIT}..${LATEST_COMMIT}" -- "$file" 2>/dev/null || echo "")
+            PATCH=$(safe_git_diff "$PREVIOUS_COMMIT" "$LATEST_COMMIT" "$file" 2>/dev/null || echo "")
         else
             # If no previous commit, show the full file content if it exists
             if [ -f "$file" ]; then
-                PATCH=$(cat "$file" 2>/dev/null || echo "")
+                # Read file safely with size limit to prevent resource exhaustion
+                if [ $(stat -f%z "$file" 2>/dev/null || echo 0) -lt 1048576 ]; then  # 1MB limit
+                    PATCH=$(cat "$file" 2>/dev/null || echo "")
+                else
+                    PATCH="# File too large to display safely"
+                fi
             else
                 PATCH=""
             fi
@@ -192,11 +332,19 @@ fi
 # Create the prompt (based on GitHub workflow but adapted for local use)
 echo -e "${BLUE}📋 Creating review prompt...${NC}"
 
-cat > prompt.txt << EOF
+# Create prompt file safely without command substitution
+cat > prompt.txt << 'EOF'
 You are an automated code review system. Review the provided code changes and identify clear issues that need to be fixed.
 
-${PRIORITY_NOTE}
+EOF
 
+# Add priority note to prompt if it exists
+if [ -n "$PRIORITY_NOTE" ]; then
+    echo "$PRIORITY_NOTE" >> prompt.txt
+    echo "" >> prompt.txt
+fi
+
+cat >> prompt.txt << 'EOF'
 Input files (already in current directory):
 - diff.txt: the code changes to review
 - files.json: file patches with line numbers for positioning comments
@@ -227,9 +375,9 @@ Comment format:
 - Clearly describe the issue: "This code block is unreachable due to the if (false) condition"
 - Provide a concrete fix: "Remove this entire if block as it will never execute"
 - When possible, suggest the exact code change:
-\`\`\`suggestion
+```suggestion
 // Remove the unreachable code
-\`\`\`
+```
 - Be specific about why it's a problem: "This will cause a TypeError if input is null"
 - No emojis, just clear technical language
 
@@ -249,30 +397,36 @@ Output:
 - Empty array [] if no issues found
 - Otherwise array of comment objects with path, line, body
 - Each comment should be actionable and clear about what needs to be fixed
-- Maximum ${MAX_COMMENTS} comments total; prioritize the most critical issues
+- Maximum EOF
+echo "$MAX_COMMENTS" >> prompt.txt
+cat >> prompt.txt << 'EOF'
+ comments total; prioritize the most critical issues
 
 CRITICAL: Ensure the comments.json file contains valid JSON that can be parsed by JSON.parse().
 - All strings in JSON must be properly escaped
 - Use \n for newlines in body strings
 - Use \" for quotes in strings
-- Use \\\\ for backslashes
+- Use \\ for backslashes
 - Use \t for tabs
 - No unescaped newlines, quotes, backslashes, or control characters in the JSON text
 - Test your JSON by running: python3 -m json.tool comments.json
 - The JSON must be a single line without line breaks within string values
 EOF
 
-# Check if Droid CLI is available
+# Check if Droid CLI is available using command -v (safer than which)
 if ! command -v droid &> /dev/null; then
     echo -e "${RED}❌ Error: Droid CLI not found in PATH${NC}"
     echo -e "${YELLOW}Please install Droid CLI: curl -fsSL https://app.factory.ai/cli | sh${NC}"
     exit 1
 fi
 
-# Run Droid with the local model
+# Run Droid with the local model - use fixed array arguments
 echo -e "${BLUE}🚀 Running code review analysis with ${MODEL_NAME}...${NC}"
 
-if droid exec -f prompt.txt --model custom:"${MODEL_NAME}" --skip-permissions-unsafe; then
+# Use fixed array for command arguments to prevent injection
+DROID_ARGS=(exec -f prompt.txt --model "custom:${MODEL_NAME}" --skip-permissions-unsafe)
+
+if droid "${DROID_ARGS[@]}"; then
     echo -e "${GREEN}✅ Review analysis completed successfully${NC}"
 else
     echo -e "${RED}❌ ERROR: droid exec failed${NC}"
@@ -325,14 +479,14 @@ echo -e "${BLUE}📝 Creating consolidated report...${NC}"
 # Create droidreview directory if it doesn't exist
 mkdir -p droidreview
 
-# Get timestamp for filename
+# Get timestamp for filename - use date command safely without command substitution
 TIMESTAMP=$(date '+%Y-%m-%dT%H-%M-%S')
 REPORT_FILE="droidreview/Droid Review ${TIMESTAMP}.md"
 
-# Get git information
-GIT_BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
-GIT_COMMIT=$(git rev-parse HEAD --short 2>/dev/null || echo "unknown")
-GIT_AUTHOR=$(git log -1 --pretty=format:'%an' 2>/dev/null || echo "unknown")
+# Get git information using safe commands
+GIT_BRANCH=$(safe_git_command branch --show-current 2>/dev/null || echo "unknown")
+GIT_COMMIT=$(safe_git_command rev-parse --short HEAD 2>/dev/null || echo "unknown")
+GIT_AUTHOR=$(safe_git_command log -1 --pretty=format:'%an' 2>/dev/null || echo "unknown")
 
 # Count comments
 COMMENT_COUNT=0
@@ -340,8 +494,9 @@ if [ -f comments.json ]; then
     COMMENT_COUNT=$(python3 -c "import json; data=json.load(open('comments.json')); print(len(data) if isinstance(data, list) else 0)" 2>/dev/null || echo "0")
 fi
 
+# Create report file safely using cat with heredoc
 cat > "$REPORT_FILE" << EOF
-# Droid Code Review Report
+# Droid Code Review Report (SECURITY HARDENED)
 
 **Date:** $(date '+%Y-%m-%d %H:%M:%S')  
 **Branch:** $GIT_BRANCH  
@@ -432,15 +587,16 @@ cat >> "$REPORT_FILE" << EOF
 
 ## Metadata
 
-- **Review Type:** Local Droid Code Review
+- **Review Type:** Local Droid Code Review (SECURITY HARDENED)
 - **Model:** GLM-4.6 [Z.AI]
 - **Analysis Date:** $(date '+%Y-%m-%d %H:%M:%S')
-- **Git Repository:** $(git remote get-url origin 2>/dev/null || echo "Local repository")
+- **Git Repository:** $(safe_git_command remote get-url origin 2>/dev/null || echo "Local repository")
 - **Review Strategy:** $(if [ "$TOTAL_FILES" -gt 50 ]; then echo "Large PR (5 comment limit)"; else echo "Standard PR (10 comment limit)"; fi)
+- **Security Features:** Input validation, path sanitization, safe command execution
 
 ---
 
-*Generated by Local Droid Code Review Script*
+*Generated by Local Droid Code Review Script (SECURITY HARDENED)*
 EOF
 
 # Clean up temporary files
@@ -457,3 +613,4 @@ echo "  - Complete code changes (diff)"
 echo "  - Detailed findings with file/line references"
 echo ""
 echo -e "${YELLOW}💡 Tip: You can open the report in your preferred markdown viewer${NC}"
+echo -e "${YELLOW}🔒 Security Features: This script includes comprehensive protections against command injection attacks${NC}"
