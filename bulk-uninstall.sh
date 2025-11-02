@@ -6,6 +6,7 @@
 set -euo pipefail
 
 # Configuration
+WORKFLOW_FILE="droid-code-review-v2.yaml"
 WORKFLOW_PATH=".github/workflows/droid-code-review.yaml"
 
 # Colors

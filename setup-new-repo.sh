@@ -124,7 +124,7 @@ fi
 mkdir -p .github/workflows
 
 # Copy workflow file
-cp "$(dirname "$0")/droid-code-review.yaml" .github/workflows/
+cp "$(dirname "$0")/droid-code-review-v2.yaml" .github/workflows/droid-code-review.yaml
 
 # Commit and push
 git add .github/workflows/droid-code-review.yaml

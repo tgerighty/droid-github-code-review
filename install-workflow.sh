@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Configuration
-WORKFLOW_FILE="droid-code-review.yaml"
+WORKFLOW_FILE="droid-code-review-v2.yaml"
 WORKFLOW_DIR=".github/workflows"
 BACKUP_DIR=".github/workflows/backup"
 LOG_FILE="workflow-installation.log"

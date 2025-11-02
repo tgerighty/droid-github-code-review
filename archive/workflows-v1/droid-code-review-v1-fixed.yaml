@@ -23,8 +23,6 @@ jobs:
   code-review:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Skip automated code review for draft PRs only (manual dispatch always runs)
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
 
     steps:
       # Set PR number from either event or manual input

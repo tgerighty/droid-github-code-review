@@ -20,7 +20,7 @@ set -euo pipefail
 # -----------------------------------------------------------------------------
 # Global Variables
 # -----------------------------------------------------------------------------
-WORKFLOW_FILE="droid-code-review.yaml"
+WORKFLOW_FILE="droid-code-review-v2.yaml"
 WORKFLOW_PATH=".github/workflows/droid-code-review.yaml"
 DROID_INSTALLER_SHA256=""  # Will be fetched dynamically
 SCRIPT_DIR=$(dirname "$0")

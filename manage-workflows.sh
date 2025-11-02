@@ -143,8 +143,8 @@ check_workflow_status() {
 update_installed_workflows() {
     local force=${1:-false}
     
-    if [[ ! -f "droid-code-review.yaml" ]]; then
-        print_status $RED "❌ droid-code-review.yaml not found in current directory"
+    if [[ ! -f "droid-code-review-v2.yaml" ]]; then
+        print_status $RED "❌ droid-code-review-v2.yaml not found in current directory"
         exit 1
     fi
     

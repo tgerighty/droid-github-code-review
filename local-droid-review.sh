@@ -148,8 +148,12 @@ while IFS= read -r file; do
         if [ -n "$PATCH" ]; then
             # Get file stats from numstat
             STATS=$(grep -F "$file" numstat.txt || echo "0	0	$file")
-            ADDITIONS=$(echo "$STATS" | awk '{print $1}')
-            DELETIONS=$(echo "$STATS" | awk '{print $2}')
+            ADDITIONS=$(echo "$STATS" | awk '{print $1}' | grep -o '[0-9]*' | head -1)
+            DELETIONS=$(echo "$STATS" | awk '{print $2}' | grep -o '[0-9]*' | head -1)
+            
+            # Ensure numeric values (default to 0 if empty)
+            ADDITIONS=${ADDITIONS:-0}
+            DELETIONS=${DELETIONS:-0}
             
             # Use jq to create properly escaped JSON object
             jq -n --arg filename "$file" --arg patch "$PATCH" --argjson additions "$ADDITIONS" --argjson deletions "$DELETIONS" '{

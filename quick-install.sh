@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-WORKFLOW_FILE="droid-code-review.yaml"
+WORKFLOW_FILE="droid-code-review-v2.yaml"
 WORKFLOW_PATH=".github/workflows/droid-code-review.yaml"
 DROID_INSTALLER_SHA256=""  # Will be fetched dynamically
 
@@ -30,7 +30,7 @@ load_env() {
         print $GREEN "✅ Loading API keys from .env file..."
         
         # SECURITY: Load variables securely with validation (PREVENT COMMAND INJECTION)
-        # Using process substitution and read loop instead of dangerous export $(grep | xargs) pattern
+        # Using process substitution and read loop instead of dangerous export with grep and xargs pattern
         while IFS='=' read -r key value; do
             # Skip comments and empty lines
             [[ "$key" =~ ^[[:space:]]*# ]] && continue
@@ -46,7 +46,7 @@ load_env() {
                 fi
                 
                 # SECURITY: Check for command injection patterns in values
-                if [[ "$value" =~ [\;\&\|`\$\(\)\{\}\[\]] ]]; then
+                if [[ "$value" =~ [\;\&\|\`\$\(\)\{\}\[\]] ]]; then
                     print $RED "❌ SECURITY ERROR: $key contains potentially dangerous characters"
                     return 1
                 fi
@@ -54,11 +54,13 @@ load_env() {
                 # Validate API key format (basic length and character checks)
                 case "$key" in
                     *_API_KEY)
-                        if [[ ${#value} -lt 32 ]]; then
+                        if [[ ${#value} -lt 20 ]]; then
                             print $RED "❌ SECURITY ERROR: $key appears too short to be a valid API key"
                             return 1
                         fi
-                        if [[ ! "$value" =~ ^[a-zA-Z0-9_+-]+$ ]]; then
+                        # Allow common API key characters: alphanumeric, underscore, hyphen, plus, dot, forward slash
+                        # Exclude dangerous shell characters: semicolon, pipe, backtick, dollar, parens, braces, brackets
+                        if [[ "$value" =~ [\;\&\|\`\$\(\)\{\}\[\][:space:]] ]]; then
                             print $RED "❌ SECURITY ERROR: $key contains invalid characters for an API key"
                             return 1
                         fi
@@ -102,19 +104,33 @@ fetch_droid_sha256() {
     fi
     
     # SECURITY: Verify download integrity - check if it's a valid script
-    if [[ ! -s "$temp_installer" ]] || [[ $(head -c 10 "$temp_installer") != "#!/bin/bash" && $(head -c 10 "$temp_installer") != "#!/bin/sh" ]]; then
-        print $RED "❌ SECURITY ERROR: Downloaded file appears invalid or corrupted"
+    if [[ ! -s "$temp_installer" ]]; then
+        print $RED "❌ SECURITY ERROR: Downloaded file is empty"
         rm -f "$temp_installer"
         return 1
     fi
     
-    if ! command -v sha256sum &> /dev/null; then
-        print $RED "❌ sha256sum command not found"
+    # Check if file starts with shebang (#!/) - indicates it's a script
+    local first_two_bytes=$(head -c 2 "$temp_installer")
+    if [[ "$first_two_bytes" != "#!" ]]; then
+        print $RED "❌ SECURITY ERROR: Downloaded file does not appear to be a valid script"
         rm -f "$temp_installer"
         return 1
     fi
     
-    DROID_INSTALLER_SHA256=$(sha256sum "$temp_installer" | awk '{print $1}')
+    # Use shasum on macOS (sha256sum not available by default)
+    local sha_cmd=""
+    if command -v sha256sum &> /dev/null; then
+        sha_cmd="sha256sum"
+    elif command -v shasum &> /dev/null; then
+        sha_cmd="shasum -a 256"
+    else
+        print $RED "❌ Neither sha256sum nor shasum command found"
+        rm -f "$temp_installer"
+        return 1
+    fi
+    
+    DROID_INSTALLER_SHA256=$($sha_cmd "$temp_installer" | awk '{print $1}')
     rm -f "$temp_installer"
     
     if [[ -z "$DROID_INSTALLER_SHA256" ]]; then

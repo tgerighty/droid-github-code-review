@@ -464,7 +464,7 @@ setup_repository() {
     mkdir -p .github/workflows
     
     # Copy workflow file from original script directory
-    local workflow_source="${SCRIPT_DIR:-$(dirname "$0")}/droid-code-review.yaml"
+    local workflow_source="${SCRIPT_DIR:-$(dirname "$0")}/droid-code-review-v2.yaml"
     validate_file_exists "$workflow_source"
     cp "$workflow_source" .github/workflows/
     
@@ -473,7 +473,7 @@ setup_repository() {
     local action_description
     
     if [ -f ".github/workflows/droid-code-review.yaml" ]; then
-        if ! diff -q ".github/workflows/droid-code-review.yaml" "$(dirname "$0")/droid-code-review.yaml" >/dev/null 2>&1; then
+        if ! diff -q ".github/workflows/droid-code-review.yaml" "$(dirname "$0")/droid-code-review-v2.yaml" >/dev/null 2>&1; then
             commit_message="Update Droid Code Review workflow
 
 - Automated AI-powered code analysis  

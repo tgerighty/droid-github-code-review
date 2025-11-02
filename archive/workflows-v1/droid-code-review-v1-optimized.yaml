@@ -17,8 +17,6 @@ jobs:
   code-review:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Skip automated code review for draft PRs
-    if: github.event.pull_request.draft == false
 
     steps:
       - name: Checkout repository
