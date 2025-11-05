@@ -2,32 +2,54 @@
 
 Automated code review workflow that uses AI to analyze pull requests and provide actionable feedback.
 
-## Source Directory
+## Repository Structure
 
-**Repository**: `/Users/terry.gerighty/nxio.ai/tools/droid-github-code-review`
-**Purpose**: AI-powered GitHub code review workflow with comprehensive analysis
-**Last Updated**: 2025-10-29
-**Working Directory**: `/Users/terry.gerighty/nxio.ai/tools/droid-github-code-review`
+```
+droid-github-code-review/
+├── README.md                      # This file
+├── droid-code-review-v2.yaml     # Main workflow file
+│
+├── Installation Scripts
+│   ├── quick-install.sh          # ⭐ Recommended: Simple installation
+│   ├── install-workflow.sh       # Advanced installation with options
+│   └── bulk-install.sh           # Alternative bulk installation
+│
+├── Update Scripts
+│   └── smart-update.sh           # ⭐ Recommended: Intelligent updates
+│
+├── Management Scripts
+│   ├── manage-workflows.sh       # Manage existing installations
+│   ├── uninstall-workflow.sh     # Advanced uninstallation
+│   └── bulk-uninstall.sh         # Simple bulk uninstallation
+│
+├── documents/                     # All documentation
+│   ├── SMART_UPDATE_GUIDE.md     # Smart update detailed guide
+│   ├── TROUBLESHOOTING.md        # Troubleshooting guide
+│   ├── MANUAL_TRIGGER.md         # Manual trigger guide
+│   ├── ENV_SETUP.md              # Environment setup guide
+│   ├── CUSTOM_MODEL_SETUP.md     # Custom model configuration
+│   ├── UNINSTALL_GUIDE.md        # Uninstallation guide
+│   └── ... (other documentation)
+│
+└── archive/                       # Legacy files and testing
+    ├── scripts/                   # Prototype/legacy scripts
+    ├── testing/                   # Test files and data
+    └── workflows-v1/              # Old workflow versions
+```
 
-## Files
+## Quick Links
 
-### Installation Scripts
-- `quick-install.sh` - ⭐ **Simple installation script**
-- `install-workflow.sh` - Advanced installation with options
-- `bulk-install.sh` - Alternative bulk installation script
+### Main Scripts (in root)
+- `quick-install.sh` - ⭐ **Simple installation** (recommended)
+- `smart-update.sh` - ⭐ **Intelligent updates** (recommended)
+- `bulk-uninstall.sh` - ⭐ **Simple uninstallation**
 
-### Update Scripts
-- `smart-update.sh` - ⭐ **Intelligent update script** (SHA256-only or full workflow updates)
-
-### Management Scripts
-- `manage-workflows.sh` - Manage existing installations
-
-### Uninstallation Scripts
-- `bulk-uninstall.sh` - ⭐ **Simple uninstallation script**
-- `uninstall-workflow.sh` - Advanced uninstallation with options
-
-### Workflow File
-- `droid-code-review.yaml` - GitHub Actions workflow file
+### Documentation (in `documents/`)
+- [Smart Update Guide](documents/SMART_UPDATE_GUIDE.md) - Detailed update guide
+- [Troubleshooting](documents/TROUBLESHOOTING.md) - Common issues and solutions
+- [Manual Trigger Guide](documents/MANUAL_TRIGGER.md) - How to manually trigger reviews
+- [Environment Setup](documents/ENV_SETUP.md) - API keys and configuration
+- [Uninstall Guide](documents/UNINSTALL_GUIDE.md) - Complete uninstallation guide
 
 ## Quick Start
 
@@ -84,7 +106,7 @@ That's it! The script will:
 
 - **Triggers**: 
   - Automatic: Runs on pull request events (opened, synchronized, reopened, ready_for_review)
-  - Manual: Can be triggered manually for any PR (see [Manual Trigger Guide](MANUAL_TRIGGER.md))
+  - Manual: Can be triggered manually for any PR (see [Manual Trigger Guide](documents/MANUAL_TRIGGER.md))
 - **Skips**: Draft pull requests (only in automatic mode)
 - **Fail-Fast**: Checks API keys first - exits in ~10 seconds with helpful PR comment if missing (saves Actions minutes!)
 - **Analyzes**: Code changes using GLM-4.6 model via Z.ai
@@ -98,7 +120,7 @@ You can manually trigger a code review for any PR:
 - Can re-run reviews without pushing new commits
 - Works on draft PRs
 
-See [MANUAL_TRIGGER.md](MANUAL_TRIGGER.md) for detailed instructions.
+See [MANUAL_TRIGGER.md](documents/MANUAL_TRIGGER.md) for detailed instructions.
 
 ## How It Works
 
