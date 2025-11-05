@@ -16,6 +16,9 @@ Automated code review workflow that uses AI to analyze pull requests and provide
 - `install-workflow.sh` - Advanced installation with options
 - `bulk-install.sh` - Alternative bulk installation script
 
+### Update Scripts
+- `smart-update.sh` - ⭐ **Intelligent update script** (SHA256-only or full workflow updates)
+
 ### Management Scripts
 - `manage-workflows.sh` - Manage existing installations
 
@@ -129,6 +132,88 @@ If you didn't create a `.env` file or want to add secrets manually:
    - Name: `FACTORY_API_KEY`, Value: Your Factory API key
    - Name: `MODEL_API_KEY`, Value: Your Z.ai API key
 
+## Updating Existing Installations
+
+### Smart Update (Recommended)
+
+The `smart-update.sh` script intelligently determines what needs updating:
+
+```bash
+# Smart update - only updates what's changed
+./smart-update.sh
+```
+
+**How it works:**
+- Fetches the latest Droid CLI SHA256
+- Compares your local workflow with each repository's workflow
+- **If workflows are identical**: Only updates the SHA256 variable (fast! ⚡)
+- **If workflows differ**: Updates both workflow and SHA256 (full update)
+- **If nothing changed**: Skips the repository
+
+**Options:**
+```bash
+# Force full workflow update for all repositories
+./smart-update.sh --force-full
+
+# Only update SHA256 variable, skip workflow comparison
+./smart-update.sh --sha256-only
+
+# Show help
+./smart-update.sh --help
+```
+
+**Example output:**
+```
+🚀 Smart Update - Droid Code Review Workflow
+=============================================
+
+✅ Prerequisites checked
+
+🔍 Fetching current Droid CLI installer SHA256...
+✅ Current SHA256: d5c0d4615da546b3d6c604b919a4eac952482b3593b506977c30e5ba354c334a
+
+📋 Mode: Smart update (minimal changes)
+
+📊 Processing 15 repositories...
+
+REPOSITORY                                         STATUS
+-------------------------------------------------- --------------------
+[  1/ 15] owner/repo1                              ⚡ SHA256 updated
+[  2/ 15] owner/repo2                              ✅ Full update
+[  3/ 15] owner/repo3                              ⏭️  No changes needed
+
+========================================
+📊 UPDATE SUMMARY
+
+⚡ SHA256 only updates: 10
+✅ Full workflow updates: 3
+⏭️  No changes needed: 2
+📈 Total processed: 15
+
+🎉 Perfect! All repositories processed successfully!
+
+🔍 What happened:
+   • 10 repositories: SHA256 variable updated (workflow unchanged)
+   • 3 repositories: Full update (workflow + SHA256)
+   • 2 repositories: Already up to date
+```
+
+### When to Use Each Update Method
+
+**Use `smart-update.sh`** (recommended):
+- When you only need to update the Droid CLI SHA256
+- When you're not sure what changed
+- For regular maintenance updates
+- Fastest and safest option
+
+**Use `smart-update.sh --force-full`**:
+- After modifying the workflow file
+- When you want to ensure all repos have the latest workflow
+
+**Use `smart-update.sh --sha256-only`**:
+- When you ONLY want to update the SHA256 variable
+- Skip workflow comparison for maximum speed
+
 ## Managing Installations
 
 ### Check Where It's Installed
@@ -143,11 +228,13 @@ If you didn't create a `.env` file or want to add secrets manually:
 ./manage-workflows.sh check owner/repo1,owner/repo2
 ```
 
-### Update All Installed Workflows
+### Update All Installed Workflows (Old Method)
 
 ```bash
 ./manage-workflows.sh update
 ```
+
+**Note**: Consider using `./smart-update.sh` instead for more efficient updates.
 
 ### Remove from Repositories
 
