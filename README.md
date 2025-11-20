@@ -1,6 +1,7 @@
 # Droid Code Review Workflow
 
-Automated code review workflow that uses AI to analyze pull requests and provide actionable feedback.
+Automated code review workflow that uses AI to analyze pull requests and provide
+actionable feedback.
 
 ## Repository Structure
 
@@ -40,16 +41,20 @@ droid-github-code-review/
 ## Quick Links
 
 ### Main Scripts (in root)
+
 - `quick-install.sh` - ⭐ **Simple installation** (recommended)
 - `smart-update.sh` - ⭐ **Intelligent updates** (recommended)
 - `bulk-uninstall.sh` - ⭐ **Simple uninstallation**
 
 ### Documentation (in `documents/`)
+
 - [Smart Update Guide](documents/SMART_UPDATE_GUIDE.md) - Detailed update guide
 - [Troubleshooting](documents/TROUBLESHOOTING.md) - Common issues and solutions
-- [Manual Trigger Guide](documents/MANUAL_TRIGGER.md) - How to manually trigger reviews
+- [Manual Trigger Guide](documents/MANUAL_TRIGGER.md) - How to manually trigger
+  reviews
 - [Environment Setup](documents/ENV_SETUP.md) - API keys and configuration
-- [Uninstall Guide](documents/UNINSTALL_GUIDE.md) - Complete uninstallation guide
+- [Uninstall Guide](documents/UNINSTALL_GUIDE.md) - Complete uninstallation
+  guide
 
 ## Quick Start
 
@@ -65,7 +70,8 @@ cp .env.example .env
 nano .env  # or use your favorite editor
 ```
 
-**Important**: The `.env` file is gitignored and will never be committed to your repository.
+**Important**: The `.env` file is gitignored and will never be committed to your
+repository.
 
 ### 2. Install to All Repositories (Recommended)
 
@@ -79,6 +85,7 @@ gh auth login
 ```
 
 That's it! The script will:
+
 - Load API keys from your `.env` file
 - Get all your repositories
 - Install the workflow to each one
@@ -104,11 +111,14 @@ That's it! The script will:
 
 ## What This Workflow Does
 
-- **Triggers**: 
-  - Automatic: Runs on pull request events (opened, synchronized, reopened, ready_for_review)
-  - Manual: Can be triggered manually for any PR (see [Manual Trigger Guide](documents/MANUAL_TRIGGER.md))
+- **Triggers**:
+  - Automatic: Runs on pull request events (opened, synchronized, reopened,
+    ready_for_review)
+  - Manual: Can be triggered manually for any PR (see
+    [Manual Trigger Guide](documents/MANUAL_TRIGGER.md))
 - **Skips**: Draft pull requests (only in automatic mode)
-- **Fail-Fast**: Checks API keys first - exits in ~10 seconds with helpful PR comment if missing (saves Actions minutes!)
+- **Fail-Fast**: Checks API keys first - exits in ~10 seconds with helpful PR
+  comment if missing (saves Actions minutes!)
 - **Analyzes**: Code changes using GLM-4.6 model via Z.ai
 - **Reports**: Inline comments with actionable feedback
 - **Timeout**: 15 minutes with concurrency control
@@ -116,6 +126,7 @@ That's it! The script will:
 ### Manual Trigger
 
 You can manually trigger a code review for any PR:
+
 - Works on PRs of any size (no file limit)
 - Can re-run reviews without pushing new commits
 - Works on draft PRs
@@ -130,7 +141,8 @@ The installation scripts automatically configure everything for you:
 
 When you run any installation script with a `.env` file configured:
 
-1. **Workflow File**: Installs `.github/workflows/droid-code-review.yaml` in each repository
+1. **Workflow File**: Installs `.github/workflows/droid-code-review.yaml` in
+   each repository
 2. **Repository Secrets** (automatically created):
    - `FACTORY_API_KEY`: Your Factory.ai API key (from `.env`)
    - `MODEL_API_KEY`: Your Z.ai API key (from `.env`)
@@ -166,6 +178,7 @@ The `smart-update.sh` script intelligently determines what needs updating:
 ```
 
 **How it works:**
+
 - Fetches the latest Droid CLI SHA256
 - Compares your local workflow with each repository's workflow
 - **If workflows are identical**: Only updates the SHA256 variable (fast! ⚡)
@@ -173,6 +186,7 @@ The `smart-update.sh` script intelligently determines what needs updating:
 - **If nothing changed**: Skips the repository
 
 **Options:**
+
 ```bash
 # Force full workflow update for all repositories
 ./smart-update.sh --force-full
@@ -185,6 +199,7 @@ The `smart-update.sh` script intelligently determines what needs updating:
 ```
 
 **Example output:**
+
 ```
 🚀 Smart Update - Droid Code Review Workflow
 =============================================
@@ -223,16 +238,19 @@ REPOSITORY                                         STATUS
 ### When to Use Each Update Method
 
 **Use `smart-update.sh`** (recommended):
+
 - When you only need to update the Droid CLI SHA256
 - When you're not sure what changed
 - For regular maintenance updates
 - Fastest and safest option
 
 **Use `smart-update.sh --force-full`**:
+
 - After modifying the workflow file
 - When you want to ensure all repos have the latest workflow
 
 **Use `smart-update.sh --sha256-only`**:
+
 - When you ONLY want to update the SHA256 variable
 - Skip workflow comparison for maximum speed
 
@@ -266,7 +284,9 @@ REPOSITORY                                         STATUS
 
 ## Uninstalling the Workflow
 
-If you want to remove the workflow from your repositories, we provide dedicated uninstallation scripts that will:
+If you want to remove the workflow from your repositories, we provide dedicated
+uninstallation scripts that will:
+
 - Remove the workflow file from repositories
 - Delete the `DROID_INSTALLER_SHA256` variable
 - Delete the `FACTORY_API_KEY` secret
@@ -278,7 +298,8 @@ If you want to remove the workflow from your repositories, we provide dedicated 
 ./bulk-uninstall.sh
 ```
 
-This will remove the workflow and clean up all secrets/variables from **all** your repositories. It will ask for confirmation before proceeding.
+This will remove the workflow and clean up all secrets/variables from **all**
+your repositories. It will ask for confirmation before proceeding.
 
 ### Advanced Uninstall Options
 
@@ -311,23 +332,27 @@ During uninstallation, the following items are removed from each repository:
 
 ### Uninstall with Backup
 
-Use the `--backup` flag to keep a backup copy of the workflow file in `.github/workflows/backup/droid-code-review.yaml`:
+Use the `--backup` flag to keep a backup copy of the workflow file in
+`.github/workflows/backup/droid-code-review.yaml`:
 
 ```bash
 ./uninstall-workflow.sh --backup
 ```
 
-This is useful if you want to preserve the workflow configuration for future reference or reinstallation.
+This is useful if you want to preserve the workflow configuration for future
+reference or reinstallation.
 
 ## Script Options
 
 ### quick-install.sh (Simple)
+
 - No options needed
 - Just run it and it works
 - Uses GitHub API directly
 - Skips existing installations
 
 ### install-workflow.sh (Advanced)
+
 ```bash
 ./install-workflow.sh [OPTIONS]
 
@@ -356,16 +381,19 @@ OPTIONS:
 ## Troubleshooting
 
 **"Not authenticated with GitHub CLI"**
+
 ```bash
 gh auth login
 ```
 
 **"GitHub CLI not found"**
+
 ```bash
 brew install gh
 ```
 
 **"Failed to install"**
+
 - Check your permissions on the repository
 - Make sure the repository isn't empty
 - Try running with `--dry-run` first to see what would happen
@@ -373,9 +401,11 @@ brew install gh
 ## Workflow Details
 
 The workflow installs with these settings:
+
 - **Runner**: `ubuntu-latest`
 - **Timeout**: 15 minutes
 - **Permissions**: Minimal (pull-requests: write, contents: read, issues: write)
 - **Concurrency**: One run per PR, cancels in-progress runs
 - **Artifacts**: Debug logs uploaded on failure (7-day retention)
 - **Model**: Uses GLM-4.6 via custom Factory.ai configuration
+\n## Test PR for SonarCloud Droid v3\nDummy change to trigger workflow: Biome lint, npm audit, parallel AI (complexity/unused/exceptions).

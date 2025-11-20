@@ -147,6 +147,36 @@ jobs:
       # OPTIMIZATION #2: Parallelize API calls for faster data gathering
       - name: Prepare review context
         if: steps.changes.outputs.skip != 'true'
+@@ -85,6 +92,19 @@ jobs:
+       - name: Setup Node.js and Biome
+         if: steps.changes.outputs.skip != 'true'
+         uses: actions/setup-node@v4
+         with:
+           node-version: '20'
+           cache: 'npm'
+       - name: Run Biome linting
+         if: steps.changes.outputs.skip != 'true'
+         run: |
+           npm ci
+           CHANGED_FILES=$(jq -r '.[].filename' files.json | tr '\n' ' ')
+           if [ -n "$CHANGED_FILES" ]; then
+             npx biome check $CHANGED_FILES --reporter=json > biome-results.json || echo '[]' > biome-results.json
+           else
+             echo '[]' > biome-results.json
+           fi
+          echo "Biome found $(jq length biome-results.json) issues"
+      - name: npm audit for dep vulnerabilities
+        if: steps.changes.outputs.skip != 'true'
+        run: |
+          npm ci
+          npm audit --json > audit.json || echo '{}' > audit.json
+          jq '.vulnerabilities | (.high + .medium + .critical | length)' audit.json > audit_count.txt
+          echo "npm audit: $(cat audit_count.txt) vulns"
+      - name: Code metrics (cloc, complexity proxy)
+        if: steps.changes.outputs.skip != 'true'
+        run: |
+          sudo apt-get update -qq &> /dev/null && sudo apt-get install -y cloc
+           echo "Biome found $(jq length biome-results.json) issues"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.pr-number.outputs.number }}
@@ -253,8 +283,10 @@ jobs:
           Input files (already in current directory):
           - diff.txt: the code changes to review
           - files.json: file patches with line numbers for positioning comments
-          - existing_comments.json: skip issues already mentioned here
+        - existing_comments.json: skip duplicates
+        - audit.json: npm dep vulns
           - truncated_files.json (optional): files whose patches were truncated by GitHub; ignore these to avoid misaligned comments
+        - biome-results.json: Biome static analysis results (unused vars, noUselessCatch, etc.)
 
           Task: Create a file called comments.json with this exact format:
           [{ "path": "path/to/file.js", "line": 42, "body": "Your comment here" }]
@@ -266,6 +298,16 @@ jobs:
           - Array/object mutations in React components or reducers
           - UseEffect dependency array problems (missing deps, incorrect deps)
           - Incorrect operator usage (== vs ===, && vs ||, = in conditions)
+        - Cognitive Complexity >15: Refactor functions with too many branches/nesting (e.g., line 538 dialog.html)
+        - Unused variables: Remove declarations (e.g., _hasHighContrastClass)
+        - useState not destructured: Use [value, setValue] = useState()
+        - Poor exception handling: Handle or remove catch; name params 'error' not '_e'
+        - Catch param naming: '_e1' -> 'error_'
+        - Prefer `globalThis` over `window`
+        - Unnecessary assertions: Remove redundant 'as Type'
+        - Use Set.has() instead of array.includes() for fast lookups
+        - Nesting >4 levels: Extract functions
+        - Biome issues: Include as warnings with fixes
           - Off-by-one errors in loops or array indexing
           - Integer overflow/underflow in calculations
           - Regex catastrophic backtracking vulnerabilities
@@ -322,6 +364,35 @@ jobs:
           echo "Running code review analysis with Factory's glm-4.6 model..."
           droid exec -f prompt.txt --model custom:GLM-4.6 --skip-permissions-unsafe || {
             echo "❌ ERROR: droid exec failed"
+            # Parallel specialized analysis (SonarCloud: bugs/vulns/smells)
+            cat > vulns-prompt.txt << 'VULNS_EOF'
+            SECURITY/VULNS ONLY: Review diff.txt, audit.json, biome-results.json for OWASP/SQLi/XSS/secrets/dep vulns.
+            Output ONLY valid JSON array to vulns.json: [{"path":"file","line":42,"body":"Fix high-sev dep vuln"}]
+            SEC_EOF
+
+            cat > bugs-prompt.txt << 'BUGS_EOF'
+            BUGS/RELIABILITY ONLY: Cognitive complexity>15, unreachable/async/off-by-one from diff.txt + biome-results.json.
+            Output ONLY bugs.json array.
+            BUGS_EOF
+
+            cat > smells-prompt.txt << 'SMELLS_EOF'
+            SMELLS ONLY: Unused vars, '_e' catches, nesting>4, globalThis, useState destructure, Set.has from diff.txt + biome-results.json.
+            Output ONLY smells.json array.
+            SMELLS_EOF
+
+            # Parallel exec (3x speed)
+            droid exec -f vulns-prompt.txt --model custom:GLM-4.6 --skip-permissions-unsafe > vulns.out &
+            droid exec -f bugs-prompt.txt --model custom:GLM-4.6 --skip-permissions-unsafe > bugs.out &
+            droid exec -f smells-prompt.txt --model custom:GLM-4.6 --skip-permissions-unsafe > smells.out &
+            wait
+
+            # Extract JSON, aggregate/dedupe
+            jq -r '.[]' vulns.out > vulns.json 2>/dev/null || echo '[]' > vulns.json
+            jq -r '.[]' bugs.out > bugs.json 2>/dev/null || echo '[]' > bugs.json
+            jq -r '.[]' smells.out > smells.json 2>/dev/null || echo '[]' > smells.json
+
+            jq -s 'add | group_by([.path, .line | tonumber]) | map(.[0]) | .[0:${MAX_COMMENTS}]' vulns.json bugs.json smells.json > comments.json || echo '[]' > comments.json
+
             echo "This could be due to missing FACTORY_API_KEY or other runtime issues."
             exit 1
           }
